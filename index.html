@@ -1,0 +1,2730 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Brew Rush ☕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   BREW RUSH — Flash Cartoon / Diner Dash style
+═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: #2a1808;
+  font-family: 'Lilita One','Fredoka One','Nunito',cursive,sans-serif;
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  color: #1a0808;
+}
+img { display: block; }
+
+:root {
+  --cream:#fff4d6; --cream2:#ffe8ad;
+  --wood:#b87438; --wood-dark:#7a4620; --wood-light:#d89858;
+  --red:#d4342a; --red-dark:#9a1e18; --red-light:#f06058;
+  --blue:#3a5cb0; --blue-dark:#1e3a78; --blue-light:#6688d4;
+  --purple:#6a3a98; --purple-dark:#4a1e70; --purple-light:#9464c4;
+  --yellow:#ffc838; --yellow-dark:#d49810;
+  --green:#4ab038; --green-dark:#2a7020; --green-light:#7ad468;
+  --pink:#e8789c;
+  --orange:#f08838; --orange-dark:#b85820;
+  --skin:#f8c898; --skin-shade:#d8a478;
+  --ink:#1a0808; --white:#fffcf4;
+  --out:2.5px solid #1a0808;
+  --out-thick:3px solid #1a0808;
+}
+
+#game {
+  width: 100%; height: 100%;
+  max-width: 430px; margin: 0 auto;
+  position: relative; overflow: hidden;
+  background: var(--wood-light);
+  display: flex; flex-direction: column;
+  box-shadow: 0 0 40px rgba(0,0,0,0.4);
+}
+
+.screen {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  overflow: hidden;
+}
+.screen.active { display: flex; }
+
+/* ── Awning pattern (shared header element) ── */
+.awning {
+  position: relative;
+  background: linear-gradient(180deg, var(--red), var(--red-dark));
+  border-bottom: var(--out-thick);
+  padding: 18px 12px 12px;
+}
+.awning::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 14px;
+  background: repeating-linear-gradient(90deg, var(--red) 0 16px, var(--cream) 16px 32px);
+  border-bottom: 2px solid var(--ink);
+  clip-path: polygon(0 0,100% 0,100% 100%,96% 60%,90% 100%,84% 60%,78% 100%,72% 60%,66% 100%,60% 60%,54% 100%,48% 60%,42% 100%,36% 60%,30% 100%,24% 60%,18% 100%,12% 60%,6% 100%,0 60%);
+}
+
+/* ── Buttons ── */
+.btn {
+  font-family: inherit; font-weight: 900;
+  cursor: pointer; user-select: none;
+  border: var(--out-thick); border-radius: 14px;
+  position: relative; overflow: hidden;
+  transition: transform 0.1s, box-shadow 0.1s;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 0 var(--ink);
+  color: var(--white); padding: 10px 18px; font-size: 16px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+}
+.btn::after {
+  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 35%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.42), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn.primary { background: linear-gradient(180deg, var(--green-light), var(--green)); }
+.btn.secondary { background: linear-gradient(180deg, var(--yellow), var(--yellow-dark)); color: var(--ink); text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
+.btn.danger { background: linear-gradient(180deg, var(--red-light), var(--red-dark)); }
+.btn.blue { background: linear-gradient(180deg, var(--blue-light), var(--blue-dark)); }
+.btn.purple { background: linear-gradient(180deg, var(--purple-light), var(--purple-dark)); }
+.btn.cream { background: linear-gradient(180deg, var(--cream), var(--cream2)); color: var(--ink); text-shadow: none; }
+.btn.sm { padding: 6px 12px; font-size: 12px; box-shadow: 0 2px 0 var(--ink); }
+.btn.sm:active { box-shadow: 0 0 0 var(--ink); }
+.btn.disabled { opacity: 0.5; cursor: not-allowed; }
+.btn.disabled:active { transform: none; box-shadow: 0 4px 0 var(--ink); }
+
+/* ═══════════════════════════════════════════════════════════════
+   TITLE SCREEN
+═══════════════════════════════════════════════════════════════ */
+#screen-title {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,200,56,0.3), transparent 50%),
+    linear-gradient(180deg, #1e3a78 0%, #3a5cb0 35%, #d89858 100%);
+  align-items: center; justify-content: center;
+  padding: 20px; gap: 18px;
+}
+.title-logo-wrap {
+  text-align: center; margin-bottom: 8px;
+  animation: bobbing 2.4s ease-in-out infinite;
+}
+@keyframes bobbing { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.title-logo {
+  font-size: 52px; color: var(--yellow); line-height: 0.95;
+  text-shadow:
+    3px 3px 0 var(--red-dark),
+    -2px -2px 0 var(--ink), 2px -2px 0 var(--ink),
+    -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
+    0 6px 0 var(--ink);
+  letter-spacing: 1px;
+  transform: rotate(-4deg);
+}
+.title-sub {
+  font-size: 14px; color: var(--cream);
+  background: var(--red-dark); border: var(--out); border-radius: 10px;
+  padding: 4px 14px; display: inline-block; margin-top: 12px;
+  box-shadow: 0 3px 0 var(--ink);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+.title-cup {
+  font-size: 80px; filter: drop-shadow(0 6px 0 rgba(0,0,0,0.3));
+  margin: 0 0 8px; animation: steam 3s ease-in-out infinite;
+}
+@keyframes steam { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+.title-buttons { display: flex; flex-direction: column; gap: 12px; width: min(280px,80%); }
+.title-footer { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; color: var(--cream); font-size: 11px; opacity: 0.8; }
+
+/* ═══════════════════════════════════════════════════════════════
+   DAY SELECT
+═══════════════════════════════════════════════════════════════ */
+#screen-day-select { background: var(--wood-light); }
+.day-sel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--white); font-size: 18px;
+  text-shadow: 0 2px 0 var(--red-dark);
+}
+.days-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  padding: 14px; overflow-y: auto; flex: 1;
+}
+.day-tile {
+  aspect-ratio: 1;
+  border: var(--out-thick); border-radius: 14px;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; box-shadow: 0 3px 0 var(--ink);
+  transition: transform 0.1s, box-shadow 0.1s;
+  position: relative; overflow: hidden;
+  background: linear-gradient(180deg, var(--cream), var(--cream2));
+}
+.day-tile::after {
+  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.day-tile:active:not(.locked) { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.day-tile.locked { opacity: 0.55; cursor: not-allowed; background: #c8b4a0; }
+.day-tile.cleared { background: linear-gradient(180deg, var(--green-light), var(--green)); color: var(--white); }
+.day-tile .d-num { font-size: 20px; color: var(--ink); text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+.day-tile.cleared .d-num { color: var(--white); text-shadow: 0 1px 0 var(--green-dark); }
+.day-tile .d-stars { display: flex; gap: 1px; font-size: 11px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRE-DAY (narrative)
+═══════════════════════════════════════════════════════════════ */
+#screen-pre-day {
+  background: linear-gradient(180deg, var(--blue-dark), var(--blue));
+  align-items: center; justify-content: center;
+  padding: 28px; gap: 18px; text-align: center;
+}
+#screen-pre-day .day-marquee {
+  background: var(--yellow); border: var(--out-thick); border-radius: 16px;
+  padding: 14px 28px; font-size: 32px; color: var(--red-dark);
+  box-shadow: 0 5px 0 var(--ink);
+  transform: rotate(-3deg);
+  position: relative; overflow: hidden;
+}
+#screen-pre-day .day-marquee::after {
+  content: ''; position: absolute; top: 2px; left: 6px; right: 6px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.55), transparent);
+  border-radius: 12px; pointer-events: none;
+}
+.pre-day-flavor {
+  background: var(--cream); border: var(--out-thick); border-radius: 14px;
+  padding: 14px 18px; font-size: 14px; color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink); max-width: 320px;
+  line-height: 1.4;
+}
+.pre-day-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 320px;
+}
+.stat-box {
+  background: var(--cream); border: var(--out-thick); border-radius: 12px;
+  padding: 10px; text-align: center; box-shadow: 0 3px 0 var(--ink);
+  position: relative; overflow: hidden;
+}
+.stat-box::after {
+  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.stat-box .stat-lbl { font-size: 10px; color: var(--red-dark); }
+.stat-box .stat-val { font-size: 20px; color: var(--ink); margin-top: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   GAMEPLAY SCREEN
+═══════════════════════════════════════════════════════════════ */
+#screen-gameplay { background: var(--wood-light); }
+
+/* Top bar */
+#topbar {
+  padding: 18px 10px 10px; gap: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; z-index: 5;
+}
+.day-badge {
+  background: var(--cream); border: var(--out); border-radius: 11px;
+  padding: 4px 10px; font-size: 13px; color: var(--red-dark);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.12); position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+.day-badge::after { content: ''; position: absolute; top: 1px; left: 3px; right: 3px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent); border-radius: 8px; pointer-events: none; }
+
+.coin-jar {
+  display: flex; align-items: center; gap: 5px;
+}
+.coin-jar-icon {
+  width: 28px; height: 32px; position: relative; flex-shrink: 0;
+}
+.coin-jar-icon .lid { position: absolute; top: 1px; left: 5px; right: 5px; height: 5px; background: var(--ink); border-radius: 2px 2px 0 0; }
+.coin-jar-icon .jar {
+  position: absolute; top: 5px; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.2) 40%, rgba(255,200,56,0.25));
+  border: var(--out); border-radius: 3px 3px 6px 6px; overflow: hidden;
+}
+.coin-jar-icon .jar::before { content:''; position:absolute; bottom:2px; left:2px; width:7px;height:7px; background:var(--yellow); border:1.3px solid var(--ink); border-radius:50%; }
+.coin-jar-icon .jar::after { content:''; position:absolute; bottom:8px; left:7px; width:7px;height:7px; background:var(--yellow); border:1.3px solid var(--ink); border-radius:50%; }
+.coin-badge {
+  background: var(--white); border: var(--out); border-radius: 12px;
+  padding: 4px 8px; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.12);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; min-width: 72px;
+}
+.coin-badge::after { content:''; position: absolute; top:1px; left:3px; right:3px; height:40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent); border-radius: 8px; pointer-events:none; }
+.coin-badge .val { font-size: 15px; color: var(--ink); line-height: 1; }
+.coin-badge .goal {
+  font-size: 8px; color: var(--white); background: var(--blue-light);
+  padding: 1px 5px; border-radius: 6px; border: 1.3px solid var(--ink); margin-top: 2px;
+}
+
+#timer-ring {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: var(--out-thick); position: relative;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+#timer-ring .inner {
+  position: absolute; inset: 6px; border-radius: 50%;
+  background: var(--purple); border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: var(--white);
+}
+.pause-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--cream); border: var(--out-thick);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer; flex-shrink: 0;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.pause-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* Orders rail */
+#orders-rail {
+  background: var(--wood); border-bottom: var(--out-thick);
+  padding: 8px 10px 12px; display: flex; gap: 8px; align-items: flex-start;
+  overflow-x: auto; overflow-y: hidden; flex-shrink: 0;
+  min-height: 108px; scrollbar-width: none;
+}
+#orders-rail::-webkit-scrollbar { display: none; }
+.orders-label {
+  font-size: 9px; color: var(--white);
+  background: var(--blue-dark); padding: 6px 10px; border-radius: 10px;
+  border: 1.5px solid var(--ink); align-self: flex-start; flex-shrink: 0;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+.order-chip {
+  flex-shrink: 0; position: relative; cursor: pointer;
+  width: 82px; height: 82px;
+  transition: transform 0.2s;
+  border: var(--out); border-radius: 8px;
+  box-shadow: inset 0 -5px 0 rgba(0,0,0,0.18);
+  background: var(--cream); overflow: hidden;
+  transform: rotate(-1deg);
+}
+.order-chip.active {
+  transform: translateY(-4px) rotate(-2deg);
+  background: var(--yellow);
+  outline: 3px solid var(--red-dark); outline-offset: 2px;
+}
+.order-chip::before {
+  content: ''; position: absolute; top: -1px; left: -1px; right: -1px; height: 6px;
+  background: #e0c888;
+  clip-path: polygon(0 0, 10% 100%, 20% 0, 30% 100%, 40% 0, 50% 100%, 60% 0, 70% 100%, 80% 0, 90% 100%, 100% 0);
+}
+.order-chip.active::before { background: var(--yellow-dark); }
+.order-chip::after {
+  content: ''; position: absolute; top: 5px; left: 4px; right: 4px; height: 25%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 6px; pointer-events: none;
+}
+.order-num {
+  position: absolute; top: 6px; left: 0; right: 0; text-align: center;
+  font-size: 9px; color: var(--red-dark);
+}
+.order-drink-icon {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  width: 34px; height: 42px;
+  border: var(--out); border-radius: 4px 4px 10px 10px;
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.12), inset 3px 3px 0 rgba(255,255,255,0.25);
+}
+.order-drink-icon::before {
+  content: ''; position: absolute; top: 3px; left: 4px; width: 4px; height: 12px;
+  background: rgba(255,255,255,0.6); border-radius: 2px;
+}
+.order-label {
+  position: absolute; bottom: 5px; left: 0; right: 0; text-align: center;
+  font-size: 9px; color: var(--ink); padding: 0 2px;
+  text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+}
+.order-prog {
+  position: absolute; bottom: 18px; left: 6px; right: 6px;
+  display: flex; gap: 2px; justify-content: center;
+}
+.order-prog span {
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 1.3px solid var(--ink);
+  background: #c8b4a0;
+}
+.order-prog span.done { background: var(--green); }
+.order-patience {
+  position: absolute; top: 2px; right: 2px;
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.3px solid var(--ink);
+}
+
+/* Station area */
+#station-area {
+  flex: 1; position: relative; overflow: hidden;
+  display: flex; min-height: 0;
+}
+.station-view {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding: 10px 12px 12px; gap: 10px;
+  background: linear-gradient(180deg, var(--cream2) 0%, var(--cream) 50%, var(--wood-light) 100%);
+  transition: transform 0.25s ease-out, opacity 0.2s;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none;
+}
+.station-view::-webkit-scrollbar { display: none; }
+.station-view.hidden { transform: translateY(12px); opacity: 0; pointer-events: none; }
+
+.station-header {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0; gap: 8px;
+}
+.station-banner {
+  border: var(--out); border-radius: 14px;
+  padding: 5px 14px;
+  font-size: 13px; font-weight: 900; color: var(--white);
+  display: inline-flex; align-items: center;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2);
+  position: relative; overflow: hidden;
+  background: linear-gradient(180deg, var(--blue-light), var(--blue));
+  text-shadow: 0 2px 0 var(--blue-dark);
+}
+.station-banner::after {
+  content: ''; position: absolute; top: 1px; left: 4px; right: 4px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.active-drink-badge {
+  border: var(--out); border-radius: 12px;
+  padding: 5px 12px; font-size: 11px; color: var(--red-dark);
+  background: linear-gradient(180deg, var(--yellow), var(--yellow-dark));
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2);
+  position: relative; overflow: hidden; flex-shrink: 0;
+  max-width: 55%; text-align: center;
+}
+.active-drink-badge::after {
+  content: ''; position: absolute; top: 1px; left: 3px; right: 3px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.no-order-msg {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  color: var(--wood-dark); font-size: 14px; text-align: center;
+  padding: 20px;
+}
+
+/* Station items */
+.items-grid {
+  display: grid; gap: 8px;
+}
+.items-2 { grid-template-columns: 1fr 1fr; }
+.items-3 { grid-template-columns: 1fr 1fr 1fr; }
+.items-4 { grid-template-columns: 1fr 1fr; }
+
+.station-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 4px 6px;
+  border: var(--out-thick); border-radius: 14px;
+  cursor: pointer; position: relative; overflow: hidden;
+  min-height: 80px;
+  box-shadow: 0 3px 0 var(--ink);
+  background: linear-gradient(180deg, var(--cream), #e8d8a8);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.station-item::after {
+  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.station-item:active:not(.locked) { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.station-item.selected {
+  background: linear-gradient(180deg, var(--yellow), var(--yellow-dark));
+  outline: 3px solid var(--red-dark); outline-offset: 2px;
+}
+.station-item.needed {
+  animation: needPulse 1.2s ease-in-out infinite;
+}
+.station-item.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.4); }
+.station-item.locked:active { transform: none; box-shadow: 0 3px 0 var(--ink); }
+@keyframes needPulse {
+  0%,100% { box-shadow: 0 3px 0 var(--ink), 0 0 0 0 rgba(255,200,56,0.7); }
+  50% { box-shadow: 0 3px 0 var(--ink), 0 0 0 8px rgba(255,200,56,0); }
+}
+
+.item-icon {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: var(--out-thick);
+  margin-bottom: 5px; position: relative; flex-shrink: 0;
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.22), inset 3px 3px 0 rgba(255,255,255,0.25);
+}
+.item-label { font-size: 11px; color: var(--ink); text-align: center; line-height: 1.1; position: relative; z-index: 2; }
+.item-lock { position: absolute; top: 5px; right: 8px; font-size: 13px; }
+
+/* Milk carton */
+.milk-carton {
+  width: 28px; height: 36px;
+  clip-path: polygon(22% 0, 78% 0, 100% 18%, 100% 100%, 0 100%, 0 18%);
+  position: relative;
+  border: var(--out);
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.2);
+}
+.milk-carton .lbl {
+  position: absolute; top: 9px; left: 3px; right: 3px; height: 11px;
+  background: var(--blue); border: 1.2px solid var(--ink);
+  font-size: 5.5px; color: var(--white); text-align: center;
+  line-height: 11px; font-weight: 900;
+}
+
+/* Syrup bottle */
+.syrup {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.syrup-pumps { display: flex; gap: 3px; height: 10px; }
+.syrup-pump { width: 7px; height: 7px; border-radius: 50%; background: var(--yellow); border: 1.3px solid var(--ink); }
+.syrup-nozzle { width: 18px; height: 8px; background: #3a2a20; border: var(--out); border-radius: 3px 3px 2px 2px; }
+.syrup-bottle {
+  width: 32px; height: 52px; border: var(--out); border-radius: 6px;
+  position: relative; overflow: hidden;
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.2);
+}
+.syrup-bottle .lbl {
+  position: absolute; top: 10px; left: 2px; right: 2px; height: 14px;
+  background: var(--white); border: 1.3px solid var(--ink); border-radius: 2px;
+  font-size: 7px; color: var(--ink); text-align: center; line-height: 14px; font-weight: 900;
+}
+
+/* Steam station specifics */
+.steam-scene {
+  flex: 1; position: relative; display: flex; align-items: flex-end;
+  justify-content: center; padding: 16px 0 24px; gap: 12px;
+  min-height: 130px;
+}
+.espresso-machine {
+  width: 106px; height: 100px;
+  background: #c8c8d8; border: var(--out-thick); border-radius: 14px;
+  position: relative;
+  box-shadow: inset -5px -5px 0 rgba(0,0,0,0.18), inset 3px 3px 0 rgba(255,255,255,0.2);
+}
+.espresso-machine .top-rail {
+  position: absolute; top: 6px; left: 8px; right: 8px; height: 14px;
+  background: var(--ink); border-radius: 6px; border: 1.5px solid var(--ink);
+}
+.espresso-machine .top-rail::before {
+  content:''; position: absolute; top: 3px; left: 10px; right: 10px; height: 4px;
+  background: var(--red); border-radius: 2px; box-shadow: 0 0 6px var(--red-light);
+}
+.espresso-machine .gauge {
+  position: absolute; top: 26px; left: 8px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--white); border: var(--out);
+  box-shadow: inset -2px -2px 0 rgba(0,0,0,0.15);
+}
+.espresso-machine .gauge::after {
+  content: ''; position: absolute; top: 50%; left: 50%; width: 9px; height: 1.5px;
+  background: var(--red); transform-origin: left center;
+  transform: translate(0,-50%) rotate(-20deg);
+}
+.espresso-machine .gauge::before {
+  content: ''; position: absolute; top: 50%; left: 50%; width: 3px; height: 3px;
+  background: var(--ink); border-radius: 50%; transform: translate(-50%,-50%); z-index: 2;
+}
+.espresso-machine .btns {
+  position: absolute; top: 26px; right: 8px; display: flex; flex-direction: column; gap: 3px;
+}
+.espresso-machine .btns span {
+  width: 12px; height: 12px; border-radius: 50%; border: var(--out);
+  box-shadow: inset -1.5px -1.5px 0 rgba(0,0,0,0.25), inset 1.5px 1.5px 0 rgba(255,255,255,0.4);
+}
+.espresso-machine .group-head {
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 36px; height: 22px; background: #3a2a20; border: var(--out);
+  border-radius: 6px 6px 12px 12px;
+}
+.espresso-machine .wand {
+  position: absolute; top: 28px; right: -15px; width: 5px; height: 36px;
+  background: #8a8a98; border: 1.5px solid var(--ink); border-radius: 3px;
+  transform: rotate(20deg); transform-origin: top center;
+}
+
+.steam-cup {
+  width: 60px; height: 70px; border: var(--out-thick);
+  border-radius: 8px 8px 16px 16px;
+  background: linear-gradient(180deg, var(--white) 0%, var(--white) 24%, #d4a878 24%, #a87840 100%);
+  box-shadow: inset -5px 0 0 rgba(0,0,0,0.12), inset 4px 3px 0 rgba(255,255,255,0.25);
+  position: relative; margin-bottom: -4px;
+}
+.steam-cup.needs-milk {
+  background: linear-gradient(180deg, var(--white) 0%, var(--white) 24%, #3a1810 24%, #1a0808 100%);
+}
+.steam-cup .foam {
+  position: absolute; top: 4px; left: 4px; right: 4px; height: 9px;
+  background: var(--white); border: var(--out); border-radius: 8px;
+  box-shadow: inset 0 -2px 0 #e8d8b8;
+}
+.steam-cup .handle {
+  position: absolute; top: 18px; right: -13px; width: 16px; height: 26px;
+  border: var(--out-thick); border-left: none;
+  border-radius: 0 16px 16px 0;
+}
+.steam-cup .steam-puff {
+  position: absolute;
+  background: var(--white); border: var(--out); border-radius: 50%;
+  opacity: 0; animation: puff 1.8s ease-out infinite;
+}
+.steam-cup.steaming .steam-puff { opacity: 0.95; }
+.steam-cup .steam-puff:nth-child(1) { top: -36px; left: 8px; width: 16px; height: 16px; animation-delay: 0s; }
+.steam-cup .steam-puff:nth-child(2) { top: -48px; left: 14px; width: 20px; height: 20px; animation-delay: 0.4s; }
+.steam-cup .steam-puff:nth-child(3) { top: -60px; left: 20px; width: 22px; height: 22px; animation-delay: 0.8s; }
+@keyframes puff {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  30% { opacity: 0.95; }
+  100% { transform: translateY(-20px) scale(1.2); opacity: 0; }
+}
+
+.hold-tag {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--red); border: var(--out);
+  padding: 3px 8px; border-radius: 10px;
+  font-size: 9px; color: var(--white);
+  text-shadow: 0 1px 0 var(--red-dark);
+  box-shadow: 0 2px 0 var(--ink);
+  display: flex; align-items: center; gap: 4px;
+}
+.hold-tag span { width: 7px; height: 7px; border-radius: 50%; background: var(--white); animation: pulse 0.7s ease infinite alternate; }
+@keyframes pulse { from { opacity: 0.4; transform: scale(0.7); } to { opacity: 1; transform: scale(1.15); } }
+
+.gauge-wrap {
+  background: var(--white); border: var(--out-thick); border-radius: 18px;
+  padding: 8px 12px; position: relative; overflow: hidden;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+.gauge-wrap::after {
+  content: ''; position: absolute; top: 1px; left: 4px; right: 4px; height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 14px; pointer-events: none;
+}
+.gauge-head { display: flex; justify-content: space-between; align-items: center; font-size: 10px; margin-bottom: 5px; position: relative; z-index: 2; }
+.gauge-tag {
+  color: var(--white); padding: 1px 8px; border-radius: 8px;
+  border: 1.5px solid var(--ink); font-size: 9px;
+  background: var(--orange-dark);
+}
+.gauge-tag.perfect { background: var(--green); }
+.gauge-bar {
+  height: 14px; border-radius: 7px; background: #d8c0a0;
+  border: var(--out); position: relative; overflow: visible; z-index: 2;
+}
+.gauge-zones { position: absolute; inset: 0; border-radius: 7px; overflow: hidden; display: flex; }
+.gauge-zone-cold { background: var(--blue-light); }
+.gauge-zone-green { background: var(--green); }
+.gauge-zone-hot { background: var(--orange); }
+.gauge-fill {
+  position: absolute; top: 0; bottom: 0; left: 0;
+  background: linear-gradient(180deg, var(--yellow), var(--orange));
+  border-radius: 7px; border-right: var(--out);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.5), inset 0 -2px 0 rgba(0,0,0,0.2);
+  transition: width 0.05s linear;
+}
+.gauge-indicator {
+  position: absolute; top: -6px; bottom: -6px; width: 8px;
+  background: var(--white); border: var(--out-thick); border-radius: 3px;
+  box-shadow: 0 2px 0 var(--ink); z-index: 3;
+  transform: translateX(-50%);
+  transition: left 0.05s linear;
+}
+
+.hold-btn {
+  width: 100%; height: 54px;
+  background: linear-gradient(180deg, var(--blue-light), var(--blue));
+  color: var(--white); font-size: 18px;
+  border: var(--out-thick); border-radius: 16px;
+  cursor: pointer; user-select: none; touch-action: none;
+  box-shadow: 0 4px 0 var(--blue-dark);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; text-shadow: 0 2px 0 var(--blue-dark);
+  position: relative; overflow: hidden;
+}
+.hold-btn.holding { transform: translateY(3px); box-shadow: 0 1px 0 var(--blue-dark); background: linear-gradient(180deg, var(--orange), var(--red)); }
+.hold-btn::after {
+  content: ''; position: absolute; top: 2px; left: 6px; right: 6px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
+  border-radius: 12px; pointer-events: none;
+}
+
+/* Serve station */
+.drink-preview {
+  background: var(--white); border: var(--out-thick); border-radius: 14px;
+  padding: 8px 10px; display: flex; align-items: center; gap: 10px;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.1);
+  position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+.drink-preview::after {
+  content: ''; position: absolute; top: 1px; left: 4px; right: 4px; height: 28%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.drink-preview-cup {
+  width: 46px; height: 62px; flex-shrink: 0;
+  border: var(--out-thick); border-radius: 6px 6px 14px 14px;
+  background: var(--white);
+  box-shadow: inset -4px 0 0 rgba(0,0,0,0.14), inset 3px 3px 0 rgba(255,255,255,0.25);
+  position: relative; z-index: 2;
+}
+.drink-preview-info { flex: 1; position: relative; z-index: 2; }
+.drink-preview-title { font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+.drink-preview-steps { display: flex; gap: 3px; flex-wrap: wrap; }
+.step-badge {
+  font-size: 9px; padding: 2px 6px; border-radius: 8px;
+  border: 1.3px solid var(--ink); font-weight: 900;
+  display: inline-flex; align-items: center;
+}
+.step-badge.done { background: var(--green); color: var(--white); }
+.step-badge.todo { background: #c8b4a0; color: var(--ink); }
+
+#serve-btn {
+  width: 100%; height: 54px;
+  background: linear-gradient(180deg, var(--green-light), var(--green));
+  color: var(--white); font-size: 20px;
+  border: var(--out-thick); border-radius: 16px;
+  cursor: pointer; box-shadow: 0 4px 0 var(--green-dark);
+  display: flex; align-items: center; justify-content: center;
+  text-shadow: 0 2px 0 var(--green-dark);
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+#serve-btn:active:not(.disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+#serve-btn.disabled { opacity: 0.5; cursor: not-allowed; }
+#serve-btn::after {
+  content: ''; position: absolute; top: 2px; left: 6px; right: 6px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
+  border-radius: 12px; pointer-events: none;
+}
+
+/* Customer queue */
+#customer-queue {
+  background: linear-gradient(180deg, var(--wood-light), var(--wood));
+  border-top: var(--out-thick);
+  padding: 22px 4px 10px;
+  display: flex; justify-content: space-around; align-items: flex-end;
+  gap: 2px; flex-shrink: 0; position: relative;
+  min-height: 124px;
+}
+#customer-queue::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 38px, rgba(0,0,0,0.1) 38px 39px);
+  pointer-events: none;
+}
+
+.customer {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; position: relative; transition: transform 0.2s;
+  z-index: 2;
+}
+.customer.taken { opacity: 0.65; cursor: default; }
+.customer:not(.taken):active { transform: translateY(-4px); }
+
+.hearts { display: flex; gap: 1px; }
+.heart {
+  width: 9px; height: 9px;
+  clip-path: polygon(50% 15%, 20% 0%, 0% 35%, 50% 100%, 100% 35%, 80% 0%);
+  border: 1px solid var(--ink);
+  transition: background 0.3s;
+}
+
+.char {
+  position: relative; width: 50px; height: 60px;
+}
+.char .head {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 40px; height: 38px;
+  background: var(--skin); border: var(--out-thick);
+  border-radius: 22px 22px 18px 18px;
+  box-shadow: inset -4px -4px 0 var(--skin-shade), inset 2px 2px 0 rgba(255,255,255,0.25);
+  z-index: 2;
+}
+.char .hair {
+  position: absolute; top: -4px; left: -3px; right: -3px; height: 16px;
+  border: var(--out); border-radius: 22px 22px 5px 5px;
+  clip-path: polygon(0 40%, 10% 20%, 25% 5%, 50% 0, 75% 5%, 90% 20%, 100% 40%, 100% 100%, 0 100%);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25);
+}
+.char .eye {
+  position: absolute; top: 14px; width: 7px; height: 9px;
+  background: var(--white); border: 1.4px solid var(--ink); border-radius: 50%;
+  overflow: hidden;
+}
+.char .eye::after {
+  content: ''; position: absolute; bottom: 1px; left: 1.5px;
+  width: 3.5px; height: 4.5px; background: var(--ink); border-radius: 50%;
+}
+.char .eye.l { left: 7px; } .char .eye.r { right: 7px; }
+.char .mouth {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  width: 9px; height: 3.5px; background: var(--red-dark);
+  border-radius: 0 0 5px 5px; border: 1.1px solid var(--ink);
+}
+.char .cheek {
+  position: absolute; bottom: 9px; width: 6px; height: 4px;
+  background: var(--pink); border-radius: 50%; opacity: 0.7;
+}
+.char .cheek.l { left: 3px; } .char .cheek.r { right: 3px; }
+.char .shades {
+  position: absolute; top: 13px; left: 5px; right: 5px; height: 8px;
+  background: var(--ink); border-radius: 4px;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.3);
+}
+.char .glasses-l, .char .glasses-r {
+  position: absolute; top: 12px; width: 9px; height: 9px;
+  border: 2px solid var(--ink); border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+}
+.char .glasses-l { left: 5px; } .char .glasses-r { right: 5px; }
+.char .glasses-bridge {
+  position: absolute; top: 16px; left: 12px; right: 12px; height: 2px; background: var(--ink);
+}
+.char .body {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 42px; height: 22px;
+  border: var(--out-thick); border-radius: 14px 14px 4px 4px;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.25), inset 3px 3px 0 rgba(255,255,255,0.2);
+  z-index: 1;
+}
+.char .body::before {
+  content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+  width: 20px; height: 6px;
+  background: inherit; border: var(--out); border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+.customer-type-lbl {
+  font-size: 9px; color: var(--white);
+  background: var(--purple); padding: 2px 7px;
+  border-radius: 9px; border: 1.3px solid var(--ink);
+  box-shadow: 0 2px 0 var(--ink);
+}
+.customer .vip-spark {
+  position: absolute; font-size: 11px; color: var(--yellow);
+  filter: drop-shadow(0 0 4px var(--yellow));
+  pointer-events: none; animation: sparkle 1.1s ease-in-out infinite;
+}
+.customer .vip-spark.s1 { top: 8px; left: -4px; }
+.customer .vip-spark.s2 { top: 26px; right: -6px; }
+@keyframes sparkle { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+.customer .check {
+  position: absolute; top: 14px; right: -6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--green); border: var(--out); color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; z-index: 5;
+  box-shadow: 0 2px 0 var(--ink);
+}
+.speech-bubble {
+  position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+  background: var(--white); border: var(--out); border-radius: 10px;
+  padding: 3px 8px; font-size: 9px; white-space: nowrap;
+  box-shadow: 0 3px 0 var(--ink); z-index: 10;
+  color: var(--ink);
+}
+.speech-bubble::after {
+  content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%) rotate(-45deg);
+  width: 8px; height: 8px; background: var(--white);
+  border: var(--out); border-top: none; border-right: none;
+}
+
+/* Streak banner */
+#streak-banner {
+  background: var(--cream); border-top: var(--out-thick); border-bottom: var(--out-thick);
+  padding: 6px 12px; display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; min-height: 42px; gap: 10px;
+}
+.streak-left { display: flex; align-items: center; gap: 7px; }
+.streak-flame {
+  width: 22px; height: 28px;
+  background: linear-gradient(180deg, var(--yellow), var(--red) 70%, var(--red-dark));
+  border: var(--out);
+  clip-path: polygon(50% 0, 78% 28%, 100% 60%, 80% 100%, 20% 100%, 0 60%, 22% 28%);
+}
+.streak-flame.hot { filter: drop-shadow(0 0 6px var(--yellow)); }
+.streak-num { font-size: 20px; color: var(--ink); }
+.streak-num small { font-size: 14px; }
+.streak-tier {
+  padding: 3px 12px; border-radius: 12px; border: var(--out);
+  color: var(--white); font-size: 11px;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.3);
+  position: relative; overflow: hidden;
+}
+.streak-tier::after {
+  content: ''; position: absolute; top: 1px; left: 3px; right: 3px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
+  border-radius: 8px; pointer-events: none;
+}
+.streak-tier.warm { background: var(--orange); }
+.streak-tier.fire { background: var(--red); }
+.streak-tier.master { background: var(--purple); }
+
+/* Bottom tabs */
+#bottom-tabs {
+  background: var(--red); border-top: var(--out-thick);
+  padding: 8px 8px 14px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px;
+  flex-shrink: 0;
+}
+.tab {
+  position: relative; overflow: hidden;
+  border: var(--out); border-radius: 12px;
+  padding: 8px 4px 6px; height: 50px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--cream), #e8d8a8);
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.15);
+  transition: transform 0.1s;
+}
+.tab::after {
+  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 32%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.38), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.tab.active { transform: translateY(-3px); outline: 2.5px solid var(--ink); outline-offset: 2px; }
+.tab.active.brew { background: linear-gradient(180deg, var(--orange), var(--orange-dark)); }
+.tab.active.steam { background: linear-gradient(180deg, var(--blue-light), var(--blue)); }
+.tab.active.flavor { background: linear-gradient(180deg, var(--yellow), var(--yellow-dark)); }
+.tab.active.serve { background: linear-gradient(180deg, var(--green-light), var(--green)); }
+.tab-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 1.5px solid var(--ink); margin-bottom: 2px;
+  box-shadow: inset -1.5px -1.5px 0 rgba(0,0,0,0.2), inset 1.5px 1.5px 0 rgba(255,255,255,0.3);
+}
+.tab-label { font-size: 10px; color: var(--ink); }
+.tab.active .tab-label { color: var(--white); text-shadow: 0 1.2px 0 rgba(0,0,0,0.4); }
+.tab .needed-dot {
+  position: absolute; top: 3px; right: 5px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--red-light); border: 1.3px solid var(--ink);
+  animation: pulse 0.7s ease infinite alternate;
+}
+
+/* Notifications */
+#notif-area {
+  position: absolute; top: 84px; left: 0; right: 0;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; pointer-events: none; z-index: 100;
+}
+.notif {
+  background: var(--yellow); border: var(--out-thick); border-radius: 14px;
+  padding: 6px 16px; font-size: 13px; color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink);
+  animation: notifPop 2s forwards;
+}
+.notif.red { background: var(--red); color: var(--white); }
+.notif.green { background: var(--green); color: var(--white); }
+.notif.purple { background: var(--purple); color: var(--white); }
+@keyframes notifPop {
+  0% { opacity: 0; transform: translateY(-16px) scale(0.8); }
+  15% { opacity: 1; transform: translateY(0) scale(1.08); }
+  25% { transform: translateY(0) scale(1); }
+  80% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.9); }
+}
+
+.coin-pop {
+  position: absolute; font-size: 18px; font-weight: 900;
+  color: var(--yellow); pointer-events: none;
+  text-shadow: 0 2px 0 var(--ink), 0 0 10px rgba(255,200,56,0.7);
+  animation: coinFloat 1.1s forwards;
+  z-index: 200;
+}
+@keyframes coinFloat {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
+}
+
+.shake { animation: shake 0.3s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESULTS
+═══════════════════════════════════════════════════════════════ */
+#screen-results {
+  background: linear-gradient(180deg, var(--wood-dark), var(--wood));
+  align-items: center; justify-content: center;
+  padding: 20px; gap: 16px;
+}
+.results-card {
+  background: var(--cream); border: var(--out-thick); border-radius: 20px;
+  padding: 22px; width: 100%; max-width: 340px;
+  box-shadow: 0 6px 0 var(--ink);
+  position: relative; overflow: hidden;
+}
+.results-card::after {
+  content: ''; position: absolute; top: 3px; left: 8px; right: 8px; height: 25%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 16px; pointer-events: none;
+}
+.results-title { font-size: 28px; text-align: center; color: var(--red-dark); margin-bottom: 4px; }
+.results-stars {
+  display: flex; gap: 8px; justify-content: center; margin: 10px 0 16px;
+}
+.results-star {
+  font-size: 44px; filter: drop-shadow(0 3px 0 rgba(0,0,0,0.3));
+  transform: scale(0); animation: starPop 0.5s forwards;
+}
+.results-star.filled { color: var(--yellow); }
+.results-star.empty { color: #c8b4a0; animation: none; transform: scale(1); }
+.results-star.s1 { animation-delay: 0.2s; }
+.results-star.s2 { animation-delay: 0.5s; }
+.results-star.s3 { animation-delay: 0.8s; }
+@keyframes starPop {
+  0% { transform: scale(0) rotate(-180deg); }
+  70% { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.results-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; font-size: 14px;
+  border-bottom: 1.5px dashed rgba(0,0,0,0.15);
+}
+.results-row:last-child { border-bottom: none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SHOP
+═══════════════════════════════════════════════════════════════ */
+#screen-shop { background: var(--wood-light); }
+.shop-section-title {
+  font-size: 13px; color: var(--ink);
+  background: var(--cream); border: var(--out); border-radius: 10px;
+  padding: 4px 12px; margin: 12px 14px 6px;
+  align-self: flex-start; box-shadow: 0 2px 0 var(--ink);
+  position: relative; overflow: hidden;
+}
+.shop-section-title::after {
+  content: ''; position: absolute; top: 1px; left: 4px; right: 4px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 8px; pointer-events: none;
+}
+.shop-item {
+  margin: 6px 14px;
+  background: var(--cream); border: var(--out-thick); border-radius: 14px;
+  padding: 10px 12px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 3px 0 var(--ink);
+  position: relative; overflow: hidden;
+}
+.shop-item::after {
+  content: ''; position: absolute; top: 2px; left: 6px; right: 6px; height: 25%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.shop-item-info { flex: 1; position: relative; z-index: 2; }
+.shop-item-name { font-size: 13px; color: var(--ink); }
+.shop-item-desc { font-size: 10px; color: var(--wood-dark); margin-top: 2px; }
+.shop-icon-bg {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: var(--out-thick);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0; position: relative; z-index: 2;
+  box-shadow: inset -3px -3px 0 rgba(0,0,0,0.2), inset 2px 2px 0 rgba(255,255,255,0.3);
+  background: var(--blue-light);
+}
+.shop-buy-btn {
+  background: linear-gradient(180deg, var(--yellow), var(--yellow-dark));
+  border: var(--out); border-radius: 10px;
+  padding: 6px 10px; font-size: 12px; color: var(--ink);
+  cursor: pointer; box-shadow: 0 3px 0 var(--ink);
+  display: flex; align-items: center; gap: 4px; white-space: nowrap;
+  position: relative; overflow: hidden; font-weight: 900;
+  transition: transform 0.1s, box-shadow 0.1s;
+  flex-shrink: 0;
+}
+.shop-buy-btn::after {
+  content: ''; position: absolute; top: 1px; left: 3px; right: 3px; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.45), transparent);
+  border-radius: 8px; pointer-events: none;
+}
+.shop-buy-btn:active:not(.owned):not(.cant) { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.shop-buy-btn.owned { background: linear-gradient(180deg, var(--green-light), var(--green)); color: var(--white); cursor: default; }
+.shop-buy-btn.cant { background: #c8b4a0; cursor: not-allowed; }
+.shop-coin-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--yellow-dark), #8a5010);
+  border: 1.5px solid var(--ink);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════════════════════ */
+#screen-settings { background: var(--wood-light); }
+.settings-row {
+  margin: 10px 14px; background: var(--cream);
+  border: var(--out-thick); border-radius: 14px;
+  padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 3px 0 var(--ink);
+  position: relative; overflow: hidden;
+}
+.settings-row::after {
+  content: ''; position: absolute; top: 2px; left: 6px; right: 6px; height: 25%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent);
+  border-radius: 10px; pointer-events: none;
+}
+.setting-lbl { font-size: 14px; color: var(--ink); position: relative; z-index: 2; }
+.toggle {
+  width: 54px; height: 28px; border: var(--out); border-radius: 14px;
+  cursor: pointer; position: relative; transition: background 0.2s;
+  flex-shrink: 0; position: relative; z-index: 2;
+}
+.toggle .knob {
+  position: absolute; top: 1.5px; width: 22px; height: 22px;
+  border-radius: 50%; border: 2px solid var(--ink);
+  background: var(--white); transition: left 0.2s;
+  box-shadow: inset -2px -2px 0 rgba(0,0,0,0.15);
+}
+.toggle.on { background: var(--green); }
+.toggle.on .knob { left: 28px; }
+.toggle.off { background: #c8b4a0; }
+.toggle.off .knob { left: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ENDLESS GAMEOVER
+═══════════════════════════════════════════════════════════════ */
+#screen-gameover {
+  background: linear-gradient(180deg, var(--ink), var(--wood-dark));
+  align-items: center; justify-content: center;
+  padding: 20px; gap: 14px;
+}
+.gameover-title { font-size: 36px; color: var(--red); text-shadow: 3px 3px 0 var(--ink); transform: rotate(-3deg); }
+
+/* ═══════════════════════════════════════════════════════════════
+   Utility
+═══════════════════════════════════════════════════════════════ */
+.scroll-y { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.scroll-y::-webkit-scrollbar { display: none; }
+.flex-col { display: flex; flex-direction: column; }
+.center { display: flex; align-items: center; justify-content: center; }
+.spacer { flex: 1; }
+.hidden { display: none !important; }
+
+/* Cup recipe visualization */
+.recipe-cup {
+  position: relative; width: 30px; height: 40px; border: 1.5px solid var(--ink);
+  border-radius: 4px 4px 8px 8px; overflow: hidden; flex-shrink: 0;
+  background: var(--white);
+}
+
+</style>
+</head>
+<body>
+<div id="game">
+  <!-- Screens injected below -->
+  <div id="screen-title" class="screen"></div>
+  <div id="screen-day-select" class="screen"></div>
+  <div id="screen-pre-day" class="screen"></div>
+  <div id="screen-gameplay" class="screen"></div>
+  <div id="screen-results" class="screen"></div>
+  <div id="screen-shop" class="screen"></div>
+  <div id="screen-settings" class="screen"></div>
+  <div id="screen-gameover" class="screen"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// BREW RUSH — Game Logic
+// ═══════════════════════════════════════════════════════════════
+'use strict';
+
+// ── Constants / Data ─────────────────────────────────────────
+
+const DRINKS = {
+  espresso:      { name:'Espresso',        brew:'espresso', milk:null,   flavor:null,       topping:null,      color:'#3a1810', shade:'#1a0808', minDay:1 },
+  drip:          { name:'Drip Coffee',     brew:'drip',     milk:null,   flavor:null,       topping:null,      color:'#8a5530', shade:'#5a3018', minDay:1 },
+  latte:         { name:'Latte',           brew:'espresso', milk:'whole',flavor:null,       topping:null,      color:'#c88848', shade:'#8a5020', minDay:4 },
+  oat_latte:     { name:'Oat Latte',       brew:'espresso', milk:'oat',  flavor:null,       topping:null,      color:'#d4a060', shade:'#9a6830', minDay:4 },
+  cappuccino:    { name:'Cappuccino',      brew:'espresso', milk:'whole',flavor:null,       topping:'cinnamon',color:'#b87448', shade:'#7a4020', minDay:5 },
+  matcha_latte:  { name:'Matcha Latte',    brew:'matcha',   milk:'oat',  flavor:null,       topping:null,      color:'#5ab038', shade:'#2a7020', minDay:5 },
+  vanilla_latte: { name:'Vanilla Latte',   brew:'espresso', milk:'oat',  flavor:'vanilla',  topping:null,      color:'#d4b870', shade:'#a07840', minDay:8 },
+  caramel_mac:   { name:'Caramel Mac.',    brew:'espresso', milk:'whole',flavor:'caramel',  topping:'whip',    color:'#c47a3a', shade:'#8a5020', minDay:8 },
+  mocha:         { name:'Mocha',           brew:'espresso', milk:'whole',flavor:'mocha',    topping:'whip',    color:'#5a3018', shade:'#2a1808', minDay:10 },
+  chai_latte:    { name:'Chai Latte',      brew:'chai',     milk:'whole',flavor:'vanilla',  topping:'cinnamon',color:'#d48838', shade:'#a05818', minDay:10 },
+  hazel_latte:   { name:'Hazelnut Latte',  brew:'espresso', milk:'almond',flavor:'hazelnut',topping:null,      color:'#8a5a3a', shade:'#5a3020', minDay:13 },
+  almond_mocha:  { name:'Almond Mocha',    brew:'espresso', milk:'almond',flavor:'mocha',   topping:'cocoa',   color:'#6a3820', shade:'#3a1810', minDay:13 },
+};
+
+const BASES = {
+  espresso: { name:'Espresso', color:'#3a1810', shade:'#1a0808', minDay:1 },
+  drip:     { name:'Drip',     color:'#8a5530', shade:'#5a3018', minDay:1 },
+  matcha:   { name:'Matcha',   color:'#4ab038', shade:'#2a7020', minDay:5 },
+  chai:     { name:'Chai',     color:'#d48838', shade:'#a05818', minDay:10 },
+};
+const MILKS = {
+  whole:  { name:'Whole',  color:'#fffcf4', shade:'#e8e0d0', minDay:1 },
+  oat:    { name:'Oat',    color:'#f4dca8', shade:'#c8a868', minDay:1 },
+  almond: { name:'Almond', color:'#f8ead0', shade:'#d8c090', minDay:3 },
+};
+const FLAVORS = {
+  vanilla:  { name:'Vanilla',  color:'#f8e4b8', shade:'#c8a868', minDay:1 },
+  caramel:  { name:'Caramel',  color:'#c47a3a', shade:'#8a5020', minDay:1 },
+  mocha:    { name:'Mocha',    color:'#5a3018', shade:'#2a1808', minDay:4 },
+  hazelnut: { name:'Hazelnut', color:'#8a5a3a', shade:'#5a3020', minDay:8 },
+};
+const TOPPINGS = {
+  whip:     { name:'Whip',     color:'#fffcf4', shade:'#d8c8a0' },
+  cinnamon: { name:'Cinnamon', color:'#a64a22', shade:'#5a2810' },
+  cocoa:    { name:'Cocoa',    color:'#3a1810', shade:'#1a0808' },
+};
+
+const CTYPES = {
+  reg:   { label:'REG', patience:30, tip:1.0, perfectOnly:false, hair:'#6a3818', shirt:'#4ab038', shirtShade:'#2a7020' },
+  reg2:  { label:'REG', patience:30, tip:1.0, perfectOnly:false, hair:'#c8583a', shirt:'#3a5cb0', shirtShade:'#1e3a78' },
+  reg3:  { label:'REG', patience:30, tip:1.0, perfectOnly:false, hair:'#3a2418', shirt:'#f08838', shirtShade:'#b85820' },
+  biz:   { label:'BIZ', patience:18, tip:1.5, perfectOnly:false, hair:'#1a0e08', shirt:'#1a0808', shirtShade:'#000', accessory:'glasses' },
+  stu:   { label:'STU', patience:45, tip:0.75,perfectOnly:false, hair:'#d49810', shirt:'#6a3a98', shirtShade:'#4a1e70' },
+  snob:  { label:'SNOB',patience:30, tip:2.0, perfectOnly:true,  hair:'#8a3818', shirt:'#8a3a5a', shirtShade:'#5a1e38', accessory:'glasses' },
+  vip:   { label:'VIP', patience:20, tip:3.0, perfectOnly:false, hair:'#ffc838', shirt:'#6a3a98', shirtShade:'#4a1e70', accessory:'shades', rare:true },
+};
+
+const DAYS = [
+  { goal:5,  time:120, spawn:16, maxQ:3, slots:3, types:['reg','reg2'], drinks:['espresso','drip'],
+    flavor:'Time to open! Start simple. Tap a customer, then tap the right ingredients.', stars:[200,350,500] },
+  { goal:7,  time:150, spawn:14, maxQ:3, slots:3, types:['reg','reg2','stu'], drinks:['espresso','drip'],
+    flavor:'Word is getting out — students are stopping by.', stars:[280,450,650] },
+  { goal:8,  time:150, spawn:13, maxQ:4, slots:3, types:['reg','reg2','reg3','stu'], drinks:['espresso','drip'],
+    flavor:'Your regulars are back! (Almond milk unlocks today.)', stars:[350,550,750] },
+  { goal:9,  time:160, spawn:12, maxQ:4, slots:3, types:['reg','reg2','reg3','stu','biz'], drinks:['espresso','drip','latte','oat_latte'],
+    flavor:'Lattes are on the menu! (Mocha syrup unlocks today.)', stars:[400,650,900] },
+  { goal:10, time:170, spawn:11, maxQ:4, slots:3, types:['reg','reg2','stu','biz'], drinks:['espresso','drip','latte','oat_latte','cappuccino','matcha_latte'],
+    flavor:'Matcha lovers incoming! (Matcha base unlocks.)', stars:[500,800,1100] },
+  { goal:10, time:170, spawn:10, maxQ:4, slots:3, types:['reg','reg2','stu','biz','reg3'], drinks:['espresso','drip','latte','oat_latte','cappuccino','matcha_latte'],
+    flavor:'Keep the pace up!', stars:[550,850,1150] },
+  { goal:11, time:180, spawn:10, maxQ:5, slots:3, types:['reg','reg2','stu','biz','snob'], drinks:['espresso','drip','latte','oat_latte','cappuccino','matcha_latte'],
+    flavor:'A coffee snob walked in… perfect their drink or no tip!', stars:[600,900,1250] },
+  { goal:12, time:180, spawn:9,  maxQ:5, slots:3, types:['reg','reg2','stu','biz','snob'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac'],
+    flavor:'Fancy drinks are popular! (Hazelnut syrup unlocks today.)', stars:[700,1050,1400] },
+  { goal:12, time:190, spawn:9,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac'],
+    flavor:'Rush hour on a Friday.', stars:[800,1200,1550] },
+  { goal:13, time:190, spawn:8,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte'],
+    flavor:'A VIP walked in! (Chai unlocks today. Endless Mode unlocks after this day!)', stars:[900,1350,1750] },
+  { goal:13, time:200, spawn:8,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte'],
+    flavor:'You unlocked Endless Mode! Keep going for stars.', stars:[1000,1450,1900] },
+  { goal:14, time:200, spawn:7,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte'],
+    flavor:'Busy lunch crowd.', stars:[1100,1600,2050] },
+  { goal:14, time:210, spawn:7,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'New signature drinks!', stars:[1200,1750,2250] },
+  { goal:15, time:210, spawn:6,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'Peak hours. Everyone wants coffee!', stars:[1400,1950,2550] },
+  { goal:15, time:210, spawn:6,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'Halfway through the season!', stars:[1500,2050,2700] },
+  { goal:16, time:220, spawn:5,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'A food blogger is reviewing you today!', stars:[1700,2250,3000] },
+  { goal:16, time:220, spawn:5,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'Social media is buzzing about you.', stars:[1900,2450,3250] },
+  { goal:17, time:230, spawn:4,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'Championship day is close.', stars:[2100,2700,3600] },
+  { goal:18, time:230, spawn:4,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'The big day is tomorrow.', stars:[2300,2950,3850] },
+  { goal:20, time:240, spawn:3,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
+    flavor:'CHAMPIONSHIP DAY! This is the big one!', stars:[2500,3200,4200] },
+];
+
+const UPGRADES = {
+  faster_brewer: { name:'Faster Brewer',     desc:'Brew step 30% faster',       cost:100, icon:'⚡', color:'var(--orange)' },
+  auto_steamer:  { name:'Auto-Steamer',      desc:'Wider green zone on steam',  cost:250, icon:'🌡️', color:'var(--blue-light)' },
+  double_pump:   { name:'Double Syrup Pump', desc:'Syrup unlocks faster',       cost:150, icon:'💧', color:'var(--yellow)' },
+  speed_lid:     { name:'Speed Lid',         desc:'Skip lid animation',         cost:75,  icon:'🎩', color:'var(--purple-light)' },
+  extra_slot:    { name:'Extra Counter Slot',desc:'+1 order slot (max 5)',      cost:300, icon:'➕', color:'var(--green-light)' },
+};
+const DECOS = {
+  menu_board: { name:'Cute Menu Board',  desc:'Pixel-art menu behind counter', cost:50,  icon:'📋', color:'#c88848' },
+  plant:      { name:'Plant on Counter', desc:'Brings life to your shop',      cost:50,  icon:'🌿', color:'var(--green)' },
+  neon_sign:  { name:'Neon Open Sign',   desc:'Glowing sign in the window',    cost:100, icon:'💡', color:'var(--yellow)' },
+  cozy_light: { name:'Cozy Lighting',    desc:'Warm color palette',            cost:150, icon:'✨', color:'var(--orange-dark)' },
+  custom_cup: { name:'Custom Cup Design',desc:'Branded cups for your shop',    cost:200, icon:'🎨', color:'var(--pink)' },
+};
+
+// ── Persistent save state ─────────────────────────────────────
+const SAVE_KEY = 'brewrush_save_v1';
+let save = loadSave();
+
+function defaultSave() {
+  return {
+    coins: 0,
+    highestDay: 1,
+    stars: {},       // {1: 2, 2: 3, ...}
+    upgrades: {},    // {faster_brewer: true}
+    decos: {},
+    endless: { coins: 0, served: 0, streak: 0 },
+    soundOn: true,
+    musicOn: false,
+  };
+}
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return defaultSave();
+    const parsed = JSON.parse(raw);
+    return Object.assign(defaultSave(), parsed);
+  } catch (e) { return defaultSave(); }
+}
+function saveGame() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch(e) {}
+}
+function resetSave() {
+  save = defaultSave();
+  saveGame();
+}
+
+// ── Session (volatile) state ──────────────────────────────────
+let S = null; // session; created per day
+
+function newSession(mode, dayIdx) {
+  const dc = mode === 'story' ? DAYS[dayIdx] : endlessConfig(0);
+  return {
+    mode,
+    dayIdx,
+    dayConfig: dc,
+    startTime: performance.now(),
+    lastFrame: performance.now(),
+    timeLeft: mode === 'story' ? dc.time : null,
+    running: false,
+    paused: false,
+
+    coins: 0,
+    served: 0,
+    angry: 0,
+    perfectServes: 0,
+
+    streak: 0,
+    maxStreak: 0,
+    bonusType: null, // 'warmup'|'fire'|'master'
+    bonusUntil: 0,
+
+    customers: [],
+    orders: [],
+    activeOrderId: null,
+    nextCustomerId: 1,
+    nextOrderId: 1,
+
+    currentStation: 'brew',
+
+    steamHolding: false,
+    steamGauge: 0,
+    steamHoldStart: 0,
+    steamMilkSelected: null,
+
+    lastSpawn: 0,
+    spawnRate: dc.spawn,
+    maxCustomers: dc.maxQ,
+    maxOrders: dc.slots + (save.upgrades.extra_slot ? 1 : 0),
+
+    endlessElapsed: 0,
+  };
+}
+
+// Endless difficulty ramps over time
+function endlessConfig(seconds) {
+  const level = Math.floor(seconds / 30);
+  return {
+    goal: 999, time: null,
+    spawn: Math.max(3, 14 - level * 0.5),
+    maxQ: Math.min(6, 3 + Math.floor(level / 2)),
+    slots: Math.min(5, 3 + Math.floor(level / 4)) + (save.upgrades.extra_slot ? 1 : 0),
+    types: ['reg','reg2','stu','biz','snob','vip','reg3'],
+    drinks: ['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte','cappuccino','matcha_latte'].concat(level >= 5 ? ['hazel_latte','almond_mocha'] : []),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO (Web Audio API — simple chiptune)
+// ═══════════════════════════════════════════════════════════════
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return audioCtx;
+}
+function tone(freq, dur, type='sine', vol=0.15, delay=0) {
+  if (!save.soundOn) return;
+  const ctx = getAudio(); if (!ctx) return;
+  const t0 = ctx.currentTime + delay;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.connect(g); g.connect(ctx.destination);
+  osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(vol, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.start(t0); osc.stop(t0 + dur);
+}
+const SFX = {
+  tap:     () => tone(660, 0.05, 'square', 0.08),
+  wrong:   () => { tone(180, 0.15, 'sawtooth', 0.12); tone(140, 0.15, 'sawtooth', 0.1, 0.05); },
+  coin:    () => { tone(880, 0.06, 'square', 0.1); tone(1200, 0.1, 'square', 0.1, 0.06); },
+  serve:   () => { tone(520, 0.08, 'square', 0.12); tone(660, 0.08, 'square', 0.12, 0.08); tone(784, 0.16, 'square', 0.12, 0.16); },
+  perfect: () => { tone(700, 0.06, 'sine', 0.12); tone(900, 0.06, 'sine', 0.12, 0.06); tone(1200, 0.12, 'sine', 0.14, 0.12); },
+  angry:   () => { tone(320, 0.15, 'sawtooth', 0.14); tone(240, 0.2, 'sawtooth', 0.14, 0.12); },
+  arrive:  () => { tone(880, 0.08, 'triangle', 0.08); tone(1100, 0.08, 'triangle', 0.08, 0.08); },
+  steam:   () => { tone(1600, 0.05, 'sine', 0.04); },
+  streak:  () => { [523, 659, 784, 1046].forEach((f,i) => tone(f, 0.1, 'square', 0.1, i * 0.08)); },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SCREEN ROUTING
+// ═══════════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TITLE SCREEN
+// ═══════════════════════════════════════════════════════════════
+function renderTitle() {
+  const el = document.getElementById('screen-title');
+  const hasEndless = save.highestDay > 10;
+  el.innerHTML = `
+    <div class="title-logo-wrap">
+      <div class="title-cup">☕</div>
+      <div class="title-logo">BREW<br/>RUSH</div>
+      <div class="title-sub">Serve fast. Tip big.</div>
+    </div>
+    <div class="title-buttons">
+      <button class="btn primary" data-action="play-story">▶ STORY MODE</button>
+      <button class="btn ${hasEndless ? 'danger' : 'disabled'}" data-action="play-endless" ${hasEndless ? '' : 'disabled'}>
+        ${hasEndless ? '🔥 ENDLESS MODE' : '🔒 ENDLESS (Day 10)'}
+      </button>
+      <button class="btn secondary" data-action="shop">🛒 SHOP</button>
+      <button class="btn cream" data-action="settings">⚙ SETTINGS</button>
+    </div>
+    <div class="title-footer">v1.0 — tap to start</div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DAY SELECT
+// ═══════════════════════════════════════════════════════════════
+function renderDaySelect() {
+  const el = document.getElementById('screen-day-select');
+  const totalStars = Object.values(save.stars).reduce((a, b) => a + b, 0);
+  let tilesHtml = '';
+  for (let i = 0; i < 20; i++) {
+    const dayNum = i + 1;
+    const unlocked = dayNum <= save.highestDay;
+    const stars = save.stars[dayNum] || 0;
+    const cleared = stars > 0;
+    tilesHtml += `
+      <div class="day-tile ${!unlocked ? 'locked' : ''} ${cleared ? 'cleared' : ''}" data-day="${dayNum}">
+        ${unlocked ? `
+          <div class="d-num">${dayNum}</div>
+          <div class="d-stars">
+            ${[1,2,3].map(s => `<span>${s <= stars ? '⭐' : '☆'}</span>`).join('')}
+          </div>
+        ` : `<div class="d-num">🔒</div>`}
+      </div>
+    `;
+  }
+  el.innerHTML = `
+    <div class="awning" style="padding: 18px 14px 12px;">
+      <div class="day-sel-header">
+        <button class="btn sm cream" data-action="back-title">← BACK</button>
+        <div>SELECT DAY</div>
+        <div style="background:var(--yellow); border:var(--out); border-radius:10px; padding:3px 10px; font-size:12px; color:var(--red-dark); box-shadow: 0 2px 0 var(--ink);">⭐ ${totalStars}/60</div>
+      </div>
+    </div>
+    <div class="days-grid">${tilesHtml}</div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PRE-DAY SCREEN
+// ═══════════════════════════════════════════════════════════════
+function renderPreDay(dayIdx) {
+  const el = document.getElementById('screen-pre-day');
+  const dc = DAYS[dayIdx];
+  el.innerHTML = `
+    <div class="day-marquee">DAY ${dayIdx + 1}</div>
+    <div class="pre-day-flavor">${dc.flavor}</div>
+    <div class="pre-day-stats">
+      <div class="stat-box"><div class="stat-lbl">GOAL</div><div class="stat-val">${dc.goal} served</div></div>
+      <div class="stat-box"><div class="stat-lbl">TIME</div><div class="stat-val">${Math.floor(dc.time / 60)}:${String(dc.time % 60).padStart(2, '0')}</div></div>
+      <div class="stat-box"><div class="stat-lbl">FOR 3⭐</div><div class="stat-val">${dc.stars[2]} ☕</div></div>
+      <div class="stat-box"><div class="stat-lbl">SLOTS</div><div class="stat-val">${dc.slots + (save.upgrades.extra_slot?1:0)}</div></div>
+    </div>
+    <div class="title-buttons" style="margin-top:8px;">
+      <button class="btn primary" data-action="start-day">☕ OPEN SHOP</button>
+      <button class="btn cream sm" data-action="back-days">← BACK</button>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAMEPLAY SCREEN
+// ═══════════════════════════════════════════════════════════════
+function renderGameplayShell() {
+  const el = document.getElementById('screen-gameplay');
+  el.innerHTML = `
+    <div class="awning" id="topbar-awning">
+      <div id="topbar">
+        <div class="day-badge" id="day-badge">DAY 1</div>
+        <div class="coin-jar">
+          <div class="coin-jar-icon">
+            <div class="lid"></div>
+            <div class="jar"></div>
+          </div>
+          <div class="coin-badge">
+            <div class="val" id="coin-val">$0</div>
+            <div class="goal" id="goal-val">GOAL 0</div>
+          </div>
+        </div>
+        <div id="timer-ring">
+          <div class="inner" id="timer-inner">2:00</div>
+        </div>
+        <div class="pause-btn" data-action="pause">II</div>
+      </div>
+    </div>
+    <div id="orders-rail">
+      <div class="orders-label">ORDERS</div>
+      <div id="orders-list" style="display:flex; gap:8px; align-items:flex-start;"></div>
+    </div>
+    <div id="station-area">
+      <div id="view-brew"   class="station-view hidden"></div>
+      <div id="view-steam"  class="station-view hidden"></div>
+      <div id="view-flavor" class="station-view hidden"></div>
+      <div id="view-serve"  class="station-view hidden"></div>
+    </div>
+    <div id="customer-queue"></div>
+    <div id="streak-banner">
+      <div class="streak-left">
+        <div class="streak-flame" id="streak-flame"></div>
+        <div class="streak-num" id="streak-num">0<small>×</small></div>
+      </div>
+      <div class="streak-tier hidden" id="streak-tier"></div>
+    </div>
+    <div id="bottom-tabs">
+      <div class="tab brew" data-tab="brew">
+        <div class="tab-dot" style="background:var(--orange)"></div>
+        <div class="tab-label">Brew</div>
+      </div>
+      <div class="tab steam" data-tab="steam">
+        <div class="tab-dot" style="background:var(--blue-light)"></div>
+        <div class="tab-label">Steam</div>
+      </div>
+      <div class="tab flavor" data-tab="flavor">
+        <div class="tab-dot" style="background:var(--yellow)"></div>
+        <div class="tab-label">Flavor</div>
+      </div>
+      <div class="tab serve" data-tab="serve">
+        <div class="tab-dot" style="background:var(--green)"></div>
+        <div class="tab-label">Serve</div>
+      </div>
+    </div>
+    <div id="notif-area"></div>
+  `;
+}
+
+// ── Gameplay sub-renderers ───────────────────────────────────
+function renderTopBar() {
+  const dayLabel = S.mode === 'story' ? `DAY ${S.dayIdx + 1}` : 'ENDLESS';
+  document.getElementById('day-badge').textContent = dayLabel;
+  document.getElementById('coin-val').textContent = '$' + S.coins;
+  if (S.mode === 'story') {
+    document.getElementById('goal-val').textContent = `${S.served}/${S.dayConfig.goal}`;
+  } else {
+    document.getElementById('goal-val').textContent = `${S.angry}/5 ✘`;
+  }
+  // Timer
+  if (S.mode === 'story' && S.timeLeft != null) {
+    const t = Math.max(0, Math.ceil(S.timeLeft));
+    const m = Math.floor(t / 60), s = t % 60;
+    document.getElementById('timer-inner').textContent = `${m}:${String(s).padStart(2,'0')}`;
+    const frac = Math.max(0, Math.min(1, S.timeLeft / S.dayConfig.time));
+    const deg = 360 * frac;
+    const ring = document.getElementById('timer-ring');
+    ring.style.background = `conic-gradient(var(--green) 0deg, var(--green) ${deg}deg, var(--purple-dark) ${deg}deg)`;
+  } else if (S.mode === 'endless') {
+    const t = Math.floor(S.endlessElapsed);
+    const m = Math.floor(t / 60), s = t % 60;
+    document.getElementById('timer-inner').textContent = `${m}:${String(s).padStart(2,'0')}`;
+    document.getElementById('timer-ring').style.background = `conic-gradient(var(--red) 0deg, var(--red) 360deg)`;
+  }
+}
+
+function renderOrdersRail() {
+  const list = document.getElementById('orders-list');
+  if (!S.orders.length) {
+    list.innerHTML = `<div style="color:var(--cream); font-size:11px; align-self:center; padding:8px 10px;">Tap a customer below ↓</div>`;
+    return;
+  }
+  list.innerHTML = S.orders.map((o) => {
+    const d = DRINKS[o.drink];
+    const c = o.customer;
+    const pFrac = Math.max(0, c ? customerPatience(c) : 0);
+    const pColor = pFrac > 0.7 ? 'var(--green)' : pFrac > 0.4 ? 'var(--yellow)' : pFrac > 0.2 ? 'var(--orange)' : 'var(--red)';
+    const steps = requiredSteps(o);
+    const done = completedSteps(o);
+    const progDots = steps.map(st => `<span class="${done.includes(st) ? 'done' : ''}"></span>`).join('');
+    return `
+      <div class="order-chip ${o.id === S.activeOrderId ? 'active' : ''}" data-order="${o.id}">
+        <div class="order-num">#${o.num}</div>
+        <div class="order-patience" style="background:${pColor}"></div>
+        <div class="order-drink-icon" style="background: linear-gradient(180deg, var(--white) 0%, var(--white) 22%, ${d.color} 22%, ${d.shade} 100%);"></div>
+        <div class="order-prog">${progDots}</div>
+        <div class="order-label">${d.name}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderStations() {
+  ['brew','steam','flavor','serve'].forEach(stn => {
+    const view = document.getElementById('view-' + stn);
+    view.classList.toggle('hidden', stn !== S.currentStation);
+  });
+  // Render active station content
+  const active = S.currentStation;
+  if (active === 'brew')   renderBrewStation();
+  if (active === 'steam')  renderSteamStation();
+  if (active === 'flavor') renderFlavorStation();
+  if (active === 'serve')  renderServeStation();
+
+  // Bottom tabs
+  document.querySelectorAll('.tab').forEach(t => {
+    const id = t.dataset.tab;
+    t.className = 'tab ' + id + (id === active ? ' active' : '');
+  });
+  // Mark tabs that need attention based on active order
+  const ao = getActiveOrder();
+  document.querySelectorAll('.tab .needed-dot').forEach(el => el.remove());
+  if (ao) {
+    const needed = nextStation(ao);
+    if (needed && needed !== active) {
+      const tab = document.querySelector(`.tab[data-tab="${needed}"]`);
+      if (tab) {
+        const dot = document.createElement('div');
+        dot.className = 'needed-dot';
+        tab.appendChild(dot);
+      }
+    }
+  }
+}
+
+function activeDrinkBadge() {
+  const ao = getActiveOrder();
+  return ao ? `<div class="active-drink-badge">${DRINKS[ao.drink].name}</div>` : '';
+}
+
+function dayUnlocked(minDay) {
+  const d = S.mode === 'story' ? S.dayIdx + 1 : 99;
+  return d >= minDay;
+}
+
+function renderBrewStation() {
+  const view = document.getElementById('view-brew');
+  const ao = getActiveOrder();
+  const bases = Object.keys(BASES);
+  const html = `
+    <div class="station-header">
+      <div class="station-banner">BREW STATION</div>
+      ${activeDrinkBadge()}
+    </div>
+    ${!ao ? `<div class="no-order-msg">Tap a customer below to take their order, then come back here to brew.</div>` : `
+      <div class="items-grid items-4">
+        ${bases.map(key => {
+          const b = BASES[key];
+          const unlocked = dayUnlocked(b.minDay);
+          const need = unlocked && ao.recipe.brew === key && !ao.state.brewDone;
+          const selected = ao.state.brewDone && ao.state.brew === key;
+          return `
+            <div class="station-item ${!unlocked ? 'locked' : ''} ${need ? 'needed' : ''} ${selected ? 'selected' : ''}"
+                 data-brew="${key}">
+              <div class="item-icon" style="background: radial-gradient(circle at 35% 30%, ${b.color}, ${b.color} 40%, ${b.shade});"></div>
+              <div class="item-label">${b.name}</div>
+              ${!unlocked ? `<div class="item-lock">🔒</div>` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `}
+  `;
+  view.innerHTML = html;
+}
+
+function renderSteamStation() {
+  const view = document.getElementById('view-steam');
+  const ao = getActiveOrder();
+  const milks = Object.keys(MILKS);
+
+  if (!ao) {
+    view.innerHTML = `
+      <div class="station-header">
+        <div class="station-banner" style="background:linear-gradient(180deg,var(--blue-light),var(--blue));">STEAM STATION</div>
+      </div>
+      <div class="no-order-msg">Select an order to steam milk.</div>
+    `;
+    return;
+  }
+
+  const needsMilk = ao.recipe.milk !== null;
+  const selected = S.steamMilkSelected;
+  const showGauge = needsMilk && selected === ao.recipe.milk && !ao.state.steamDone;
+  const wideBonus = save.upgrades.auto_steamer ? 0.08 : 0;
+  const greenStart = 0.50 - wideBonus;
+  const greenEnd   = 0.78 + wideBonus;
+  const g = S.steamGauge;
+  const inGreen = g >= greenStart && g <= greenEnd;
+
+  view.innerHTML = `
+    <div class="station-header">
+      <div class="station-banner" style="background:linear-gradient(180deg,var(--blue-light),var(--blue));">STEAM STATION</div>
+      ${activeDrinkBadge()}
+    </div>
+    ${!needsMilk ? `
+      <div class="no-order-msg">This drink doesn't need milk. Head to the next station →</div>
+    ` : `
+      <div class="steam-scene">
+        <div class="espresso-machine">
+          <div class="top-rail"></div>
+          <div class="gauge"></div>
+          <div class="btns"><span style="background:var(--green)"></span><span style="background:var(--yellow)"></span><span style="background:var(--red)"></span></div>
+          <div class="group-head"></div>
+          <div class="wand"></div>
+        </div>
+        <div class="steam-cup ${S.steamHolding ? 'steaming' : ''} ${!ao.state.brewDone ? 'needs-milk' : ''}">
+          <div class="steam-puff"></div><div class="steam-puff"></div><div class="steam-puff"></div>
+          <div class="foam"></div>
+          <div class="handle"></div>
+        </div>
+        ${S.steamHolding ? `<div class="hold-tag"><span></span>HOLDING</div>` : ''}
+      </div>
+
+      ${showGauge ? `
+        <div class="gauge-wrap">
+          <div class="gauge-head">
+            <span style="color:var(--ink)">TEMP</span>
+            <span class="gauge-tag ${inGreen ? 'perfect' : ''}">${inGreen ? '★ PERFECT!' : S.steamHolding ? 'HOLD…' : 'TAP & HOLD'}</span>
+          </div>
+          <div class="gauge-bar">
+            <div class="gauge-zones">
+              <div class="gauge-zone-cold" style="width: ${greenStart * 100}%;"></div>
+              <div class="gauge-zone-green" style="width: ${(greenEnd - greenStart) * 100}%;"></div>
+              <div class="gauge-zone-hot" style="flex:1;"></div>
+            </div>
+            <div class="gauge-fill" id="gauge-fill" style="width: ${g * 100}%;"></div>
+            <div class="gauge-indicator" id="gauge-indicator" style="left: ${g * 100}%;"></div>
+          </div>
+        </div>
+        <button class="hold-btn ${S.steamHolding ? 'holding' : ''}" id="hold-btn">
+          ${S.steamHolding ? '🔥 STEAMING…' : '🥛 TAP & HOLD TO STEAM'}
+        </button>
+      ` : `
+        <div class="items-grid items-3">
+          ${milks.map(key => {
+            const m = MILKS[key];
+            const unlocked = dayUnlocked(m.minDay);
+            const need = unlocked && ao.recipe.milk === key && !ao.state.steamDone && !S.steamMilkSelected;
+            const isSel = S.steamMilkSelected === key;
+            return `
+              <div class="station-item ${!unlocked ? 'locked' : ''} ${need ? 'needed' : ''} ${isSel ? 'selected' : ''}"
+                   data-milk="${key}">
+                <div class="milk-carton" style="background:${m.color}; box-shadow: inset -3px -3px 0 ${m.shade};">
+                  <div class="lbl">MILK</div>
+                </div>
+                <div class="item-label">${m.name}</div>
+                ${!unlocked ? `<div class="item-lock">🔒</div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `}
+    `}
+  `;
+}
+
+function renderFlavorStation() {
+  const view = document.getElementById('view-flavor');
+  const ao = getActiveOrder();
+  const flavors = Object.keys(FLAVORS);
+
+  if (!ao) {
+    view.innerHTML = `
+      <div class="station-header">
+        <div class="station-banner" style="background:linear-gradient(180deg,var(--yellow),var(--yellow-dark)); color:var(--ink); text-shadow:none;">FLAVOR STATION</div>
+      </div>
+      <div class="no-order-msg">Select an order to add flavors.</div>
+    `;
+    return;
+  }
+
+  const needsFlavor = ao.recipe.flavor !== null;
+
+  view.innerHTML = `
+    <div class="station-header">
+      <div class="station-banner" style="background:linear-gradient(180deg,var(--yellow),var(--yellow-dark)); color:var(--ink); text-shadow:none;">FLAVOR STATION</div>
+      ${activeDrinkBadge()}
+    </div>
+    ${!needsFlavor ? `
+      <div class="no-order-msg">This drink is already tasty — no syrup needed!</div>
+    ` : `
+      <div class="items-grid items-4">
+        ${flavors.map(key => {
+          const f = FLAVORS[key];
+          const unlocked = dayUnlocked(f.minDay);
+          const need = unlocked && ao.recipe.flavor === key && !ao.state.flavorDone;
+          const isSel = ao.state.flavorDone && ao.state.flavor === key;
+          return `
+            <div class="station-item ${!unlocked ? 'locked' : ''} ${need ? 'needed' : ''} ${isSel ? 'selected' : ''}"
+                 data-flavor="${key}">
+              <div class="syrup">
+                <div class="syrup-nozzle"></div>
+                <div class="syrup-bottle" style="background:${f.color}; box-shadow: inset -3px -3px 0 ${f.shade};">
+                  <div class="lbl">${f.name.slice(0,4).toUpperCase()}</div>
+                </div>
+              </div>
+              <div class="item-label" style="margin-top:3px;">${f.name}</div>
+              ${!unlocked ? `<div class="item-lock">🔒</div>` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `}
+  `;
+}
+
+function renderServeStation() {
+  const view = document.getElementById('view-serve');
+  const ao = getActiveOrder();
+  const toppings = ['whip','cinnamon','cocoa'];
+
+  if (!ao) {
+    view.innerHTML = `
+      <div class="station-header">
+        <div class="station-banner" style="background:linear-gradient(180deg,var(--green-light),var(--green));">SERVE STATION</div>
+      </div>
+      <div class="no-order-msg">Select an order to serve.</div>
+    `;
+    return;
+  }
+
+  const steps = requiredSteps(ao);
+  const done = completedSteps(ao);
+  const ready = isReadyToServe(ao);
+
+  const needsTopping = ao.recipe.topping !== null;
+  const d = DRINKS[ao.drink];
+
+  view.innerHTML = `
+    <div class="station-header">
+      <div class="station-banner" style="background:linear-gradient(180deg,var(--green-light),var(--green));">SERVE STATION</div>
+      ${activeDrinkBadge()}
+    </div>
+    <div class="drink-preview">
+      <div class="drink-preview-cup" style="background: linear-gradient(180deg, var(--white) 0%, var(--white) 22%, ${d.color} 22%, ${d.shade} 100%);"></div>
+      <div class="drink-preview-info">
+        <div class="drink-preview-title">${d.name}</div>
+        <div class="drink-preview-steps">
+          ${steps.map(st => `<span class="step-badge ${done.includes(st) ? 'done' : 'todo'}">${stepLabel(st, ao)}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+    ${needsTopping ? `
+      <div style="font-size:11px; color:var(--wood-dark); margin-top:2px;">Add topping:</div>
+      <div class="items-grid items-3">
+        ${toppings.map(key => {
+          const t = TOPPINGS[key];
+          const need = ao.recipe.topping === key && !ao.state.toppingDone;
+          const isSel = ao.state.toppingDone && ao.state.topping === key;
+          return `
+            <div class="station-item ${need ? 'needed' : ''} ${isSel ? 'selected' : ''}" data-topping="${key}">
+              <div class="item-icon" style="background: radial-gradient(circle at 35% 30%, ${t.color === '#fffcf4' ? 'var(--white)' : 'var(--white)'}, ${t.color} 60%, ${t.shade});"></div>
+              <div class="item-label">${t.name}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    ` : ''}
+    <div class="spacer"></div>
+    <button id="serve-btn" class="${ready ? '' : 'disabled'}">${ready ? 'SERVE →' : `Missing: ${steps.filter(s => !done.includes(s)).map(s=>stepLabel(s,ao)).join(', ')}`}</button>
+  `;
+}
+
+function renderCustomerQueue() {
+  const q = document.getElementById('customer-queue');
+  if (!q) return;
+  q.innerHTML = S.customers.map(c => renderCustomerHtml(c)).join('');
+}
+
+function renderCustomerHtml(c) {
+  const t = CTYPES[c.type];
+  const pFrac = customerPatience(c);
+  const pColor = pFrac > 0.7 ? 'var(--green)' : pFrac > 0.4 ? 'var(--yellow)' : pFrac > 0.2 ? 'var(--orange)' : 'var(--red)';
+  const lit = Math.ceil(pFrac * 5);
+  const heartsHtml = [0,1,2,3,4].map(i =>
+    `<div class="heart" style="background:${i < lit ? pColor : '#c8b4a0'};"></div>`
+  ).join('');
+  const accHtml = t.accessory === 'shades' ? `<div class="shades"></div>` :
+                  t.accessory === 'glasses' ? `<div class="glasses-l"></div><div class="glasses-r"></div><div class="glasses-bridge"></div>` : '';
+  const bubble = !c.taken && !c.bubbleShown ? '' : '';
+  const showBubble = !c.taken ? `<div class="speech-bubble">${DRINKS[c.drink].name}</div>` : '';
+  const sparkles = t.label === 'VIP' ? `<div class="vip-spark s1">✦</div><div class="vip-spark s2">✦</div>` : '';
+  return `
+    <div class="customer ${c.taken ? 'taken' : ''}" data-customer="${c.id}">
+      <div class="hearts">${heartsHtml}</div>
+      <div class="char">
+        ${showBubble}
+        <div class="head" style="background:var(--skin);">
+          <div class="hair" style="background:${t.hair};"></div>
+          <div class="eye l"></div>
+          <div class="eye r"></div>
+          <div class="mouth"></div>
+          <div class="cheek l"></div>
+          <div class="cheek r"></div>
+          ${accHtml}
+        </div>
+        <div class="body" style="background:${t.shirt}; box-shadow: inset 0 -4px 0 ${t.shirtShade}, inset 3px 3px 0 rgba(255,255,255,0.2);"></div>
+        ${sparkles}
+        ${c.taken ? `<div class="check">✓</div>` : ''}
+      </div>
+      <div class="customer-type-lbl">${t.label}</div>
+    </div>
+  `;
+}
+
+function renderStreakBanner() {
+  const num = document.getElementById('streak-num');
+  if (!num) return;
+  num.innerHTML = `${S.streak}<small>×</small>`;
+  const flame = document.getElementById('streak-flame');
+  flame.classList.toggle('hot', S.streak >= 5);
+  const tierEl = document.getElementById('streak-tier');
+  const tier = S.streak >= 10 ? 'BREW MASTER!' : S.streak >= 5 ? 'ON FIRE!' : S.streak >= 3 ? 'WARMED UP!' : null;
+  if (tier) {
+    tierEl.textContent = tier;
+    tierEl.classList.remove('hidden', 'warm', 'fire', 'master');
+    tierEl.classList.add(S.streak >= 10 ? 'master' : S.streak >= 5 ? 'fire' : 'warm');
+  } else {
+    tierEl.classList.add('hidden');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS — orders & recipes
+// ═══════════════════════════════════════════════════════════════
+function getActiveOrder() {
+  return S.orders.find(o => o.id === S.activeOrderId) || null;
+}
+function requiredSteps(order) {
+  const r = order.recipe;
+  const steps = ['brew'];
+  if (r.milk) steps.push('steam');
+  if (r.flavor) steps.push('flavor');
+  if (r.topping) steps.push('topping');
+  return steps;
+}
+function completedSteps(order) {
+  const s = order.state;
+  const out = [];
+  if (s.brewDone) out.push('brew');
+  if (s.steamDone) out.push('steam');
+  if (s.flavorDone) out.push('flavor');
+  if (s.toppingDone) out.push('topping');
+  return out;
+}
+function stepLabel(step, order) {
+  if (step === 'brew')    return BASES[order.recipe.brew].name;
+  if (step === 'steam')   return MILKS[order.recipe.milk].name;
+  if (step === 'flavor')  return FLAVORS[order.recipe.flavor].name;
+  if (step === 'topping') return TOPPINGS[order.recipe.topping].name;
+  return step;
+}
+function isReadyToServe(order) {
+  const need = requiredSteps(order);
+  const done = completedSteps(order);
+  return need.every(s => done.includes(s));
+}
+function nextStation(order) {
+  const r = order.recipe, s = order.state;
+  if (!s.brewDone) return 'brew';
+  if (r.milk && !s.steamDone) return 'steam';
+  if (r.flavor && !s.flavorDone) return 'flavor';
+  if (r.topping && !s.toppingDone) return 'serve';
+  return 'serve';
+}
+function customerPatience(c) {
+  const elapsed = (performance.now() - c.arrivedAt) / 1000 - (S.pausedDelta || 0);
+  return Math.max(0, 1 - elapsed / c.maxPatience);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAMEPLAY ACTIONS
+// ═══════════════════════════════════════════════════════════════
+function startDay(dayIdx) {
+  S = newSession('story', dayIdx);
+  S.running = true;
+  renderGameplayShell();
+  renderTopBar();
+  renderOrdersRail();
+  renderStations();
+  renderCustomerQueue();
+  renderStreakBanner();
+  showScreen('gameplay');
+  loopStart();
+  // Spawn first customer quickly
+  setTimeout(() => { if (S && S.running) spawnCustomer(); }, 800);
+}
+function startEndless() {
+  S = newSession('endless', 0);
+  S.running = true;
+  renderGameplayShell();
+  renderTopBar();
+  renderOrdersRail();
+  renderStations();
+  renderCustomerQueue();
+  renderStreakBanner();
+  showScreen('gameplay');
+  loopStart();
+  setTimeout(() => { if (S && S.running) spawnCustomer(); }, 800);
+}
+
+function spawnCustomer() {
+  if (!S || !S.running) return;
+  if (S.customers.filter(c => !c.leaving).length >= S.dayConfig.maxQ) return;
+  const dc = S.dayConfig;
+  const types = dc.types.slice();
+  // Make VIP rarer
+  const pool = [];
+  types.forEach(t => {
+    const count = CTYPES[t].rare ? 1 : 4;
+    for (let i=0;i<count;i++) pool.push(t);
+  });
+  const type = pool[Math.floor(Math.random() * pool.length)];
+  const drinks = dc.drinks;
+  const drink = drinks[Math.floor(Math.random() * drinks.length)];
+  const ct = CTYPES[type];
+  const c = {
+    id: S.nextCustomerId++,
+    type,
+    drink,
+    arrivedAt: performance.now(),
+    maxPatience: ct.patience,
+    taken: false,
+    leaving: false,
+  };
+  S.customers.push(c);
+  S.lastSpawn = performance.now();
+  renderCustomerQueue();
+  SFX.arrive();
+}
+
+function endlessSpawnRate() {
+  const lvl = Math.floor(S.endlessElapsed / 30);
+  return Math.max(2.5, 13 - lvl * 0.6);
+}
+
+function onCustomerTap(customerId) {
+  const c = S.customers.find(x => x.id === customerId);
+  if (!c || c.taken || c.leaving) return;
+  if (S.orders.length >= S.maxOrders) {
+    notif('Order queue full!', 'red'); SFX.wrong();
+    return;
+  }
+  const d = DRINKS[c.drink];
+  const order = {
+    id: S.nextOrderId++,
+    num: S.nextOrderId - 1,
+    customerId,
+    customer: c,
+    drink: c.drink,
+    recipe: { brew: d.brew, milk: d.milk, flavor: d.flavor, topping: d.topping },
+    state: { brewDone:false, steamDone:false, flavorDone:false, toppingDone:false,
+             brew:null, milk:null, flavor:null, topping:null, steamQuality:null },
+    acceptedAt: performance.now(),
+  };
+  S.orders.push(order);
+  if (!S.activeOrderId) S.activeOrderId = order.id;
+  c.taken = true;
+  SFX.tap();
+  renderCustomerQueue();
+  renderOrdersRail();
+  renderStations();
+}
+
+function onOrderSelect(orderId) {
+  if (S.steamHolding) return;
+  S.activeOrderId = orderId;
+  S.steamMilkSelected = null;
+  S.steamGauge = 0;
+  SFX.tap();
+  renderOrdersRail();
+  renderStations();
+}
+
+function onTabTap(tab) {
+  if (S.steamHolding) return;
+  S.currentStation = tab;
+  S.steamMilkSelected = null;
+  S.steamGauge = 0;
+  SFX.tap();
+  renderStations();
+}
+
+function onBrewTap(baseId) {
+  const ao = getActiveOrder();
+  if (!ao || ao.state.brewDone) return;
+  if (!dayUnlocked(BASES[baseId].minDay)) return;
+  if (ao.recipe.brew !== baseId) {
+    SFX.wrong(); shake('view-brew');
+    return;
+  }
+  ao.state.brewDone = true;
+  ao.state.brew = baseId;
+  SFX.tap();
+  // Brief brewing delay (faster with upgrade)
+  const delay = save.upgrades.faster_brewer ? 400 : 600;
+  notif('☕ Brewing…', 'green');
+  setTimeout(() => {
+    if (S && S.running) {
+      renderOrdersRail();
+      renderStations();
+    }
+  }, delay);
+  renderOrdersRail();
+  renderStations();
+}
+
+function onMilkTap(milkId) {
+  const ao = getActiveOrder();
+  if (!ao || ao.state.steamDone) return;
+  if (!dayUnlocked(MILKS[milkId].minDay)) return;
+  if (S.steamMilkSelected) return;
+  if (ao.recipe.milk !== milkId) {
+    SFX.wrong(); shake('view-steam');
+    return;
+  }
+  S.steamMilkSelected = milkId;
+  SFX.tap();
+  renderStations();
+}
+
+function onSteamHoldStart() {
+  const ao = getActiveOrder();
+  if (!ao || ao.state.steamDone) return;
+  if (S.steamMilkSelected !== ao.recipe.milk) return;
+  S.steamHolding = true;
+  S.steamHoldStart = performance.now();
+  document.getElementById('hold-btn')?.classList.add('holding');
+}
+function onSteamHoldEnd() {
+  if (!S || !S.steamHolding) return;
+  S.steamHolding = false;
+  const ao = getActiveOrder();
+  if (!ao) return;
+  const g = S.steamGauge;
+  const wideBonus = save.upgrades.auto_steamer ? 0.08 : 0;
+  const greenStart = 0.50 - wideBonus;
+  const greenEnd   = 0.78 + wideBonus;
+  let quality;
+  if (g >= greenStart && g <= greenEnd) { quality = 'perfect'; SFX.perfect(); notif('★ Perfect foam!', 'green'); }
+  else if (g > greenEnd)               { quality = 'burnt';   SFX.wrong();   notif('Milk burned!', 'red'); }
+  else                                  { quality = 'cold';    SFX.wrong();   notif('Not hot enough!', 'red'); }
+  ao.state.steamDone = true;
+  ao.state.milk = ao.recipe.milk;
+  ao.state.steamQuality = quality;
+  S.steamGauge = 0;
+  renderOrdersRail();
+  renderStations();
+}
+
+function onFlavorTap(flavorId) {
+  const ao = getActiveOrder();
+  if (!ao || ao.state.flavorDone) return;
+  if (!dayUnlocked(FLAVORS[flavorId].minDay)) return;
+  if (ao.recipe.flavor !== flavorId) {
+    SFX.wrong(); shake('view-flavor');
+    return;
+  }
+  ao.state.flavorDone = true;
+  ao.state.flavor = flavorId;
+  SFX.tap();
+  renderOrdersRail();
+  renderStations();
+}
+
+function onToppingTap(topId) {
+  const ao = getActiveOrder();
+  if (!ao || ao.state.toppingDone) return;
+  if (ao.recipe.topping !== topId) {
+    SFX.wrong(); shake('view-serve');
+    return;
+  }
+  ao.state.toppingDone = true;
+  ao.state.topping = topId;
+  SFX.tap();
+  renderOrdersRail();
+  renderStations();
+}
+
+function onServeTap() {
+  const ao = getActiveOrder();
+  if (!ao || !isReadyToServe(ao)) { SFX.wrong(); shake('view-serve'); return; }
+  completeOrder(ao);
+}
+
+function completeOrder(order) {
+  const c = order.customer;
+  const ct = CTYPES[c.type];
+  const patienceFrac = customerPatience(c);
+  const perfect = patienceFrac > 0.7 && (order.state.steamQuality !== 'burnt' && order.state.steamQuality !== 'cold');
+  // Snob requires perfect or no tip
+  const snobFail = ct.perfectOnly && !perfect;
+
+  let base = 50;
+  let tipMult = snobFail ? 0 : ct.tip;
+  let coins = Math.round(base * tipMult);
+
+  // Patience bonus
+  if (patienceFrac > 0.7 && !snobFail) coins += 15;
+
+  // Steam quality penalty
+  if (order.state.steamQuality === 'burnt') coins = Math.round(coins * 0.6);
+  if (order.state.steamQuality === 'cold') coins = Math.round(coins * 0.7);
+
+  // Combo bonus
+  if (S.bonusType === 'warmup') coins = Math.round(coins * 1.25);
+  if (S.bonusType === 'master') coins = Math.round(coins * 2);
+
+  // Streak
+  if (perfect && !snobFail) {
+    S.streak++;
+    S.perfectServes++;
+    if (S.streak > S.maxStreak) S.maxStreak = S.streak;
+    checkStreakMilestone();
+  } else {
+    if (S.streak > 0 && !perfect) S.streak = 0;
+  }
+
+  S.coins += coins;
+  S.served++;
+  SFX.serve();
+  SFX.coin();
+  coinPop(coins);
+
+  // Remove customer & order
+  S.customers = S.customers.filter(cust => cust.id !== c.id);
+  S.orders = S.orders.filter(o => o.id !== order.id);
+  if (S.activeOrderId === order.id) {
+    S.activeOrderId = S.orders[0] ? S.orders[0].id : null;
+  }
+
+  renderTopBar();
+  renderOrdersRail();
+  renderStations();
+  renderCustomerQueue();
+  renderStreakBanner();
+
+  // Check day goal
+  if (S.mode === 'story' && S.served >= S.dayConfig.goal) {
+    setTimeout(() => endDay(true), 1200);
+  }
+}
+
+function checkStreakMilestone() {
+  if (S.streak === 3) {
+    S.bonusType = 'warmup'; S.bonusUntil = performance.now() + 10000;
+    notif('🔥 Warmed Up! +25% coins 10s', 'purple');
+    SFX.streak();
+  } else if (S.streak === 5) {
+    S.bonusType = 'fire'; S.bonusUntil = performance.now() + 5000;
+    notif('🔥🔥 On Fire! Patience freeze 5s', 'red');
+    SFX.streak();
+  } else if (S.streak === 10) {
+    S.bonusType = 'master'; S.bonusUntil = performance.now() + 15000;
+    // Boost all customer patience
+    S.customers.forEach(c => { c.arrivedAt = performance.now(); });
+    notif('⭐ BREW MASTER! 2x coins 15s', 'purple');
+    SFX.streak();
+  }
+}
+
+function customerLeftAngry(c) {
+  S.customers = S.customers.filter(x => x.id !== c.id);
+  // Remove associated order if taken
+  S.orders = S.orders.filter(o => o.customerId !== c.id);
+  if (S.activeOrderId && !S.orders.find(o => o.id === S.activeOrderId)) {
+    S.activeOrderId = S.orders[0]?.id || null;
+  }
+  S.angry++;
+  if (S.streak > 0) S.streak = 0;
+  SFX.angry();
+  notif('😡 Customer left angry!', 'red');
+  renderOrdersRail();
+  renderCustomerQueue();
+  renderStations();
+  renderStreakBanner();
+  if (S.mode === 'endless' && S.angry >= 5) {
+    endEndless();
+  }
+}
+
+function endDay(success) {
+  S.running = false;
+  // Star calculation: based on coins earned
+  const cfg = S.dayConfig;
+  let stars = 0;
+  if (S.coins >= cfg.stars[0]) stars = 1;
+  if (S.coins >= cfg.stars[1]) stars = 2;
+  if (S.coins >= cfg.stars[2]) stars = 3;
+  if (!success && S.served < cfg.goal) stars = 0;
+
+  if (success) {
+    const d = S.dayIdx + 1;
+    save.coins += S.coins;
+    if (!save.stars[d] || save.stars[d] < stars) save.stars[d] = stars;
+    if (save.highestDay < d + 1 && stars > 0) save.highestDay = Math.min(20, d + 1);
+    saveGame();
+  }
+  showResults(success, stars);
+}
+
+function endEndless() {
+  S.running = false;
+  const hs = save.endless;
+  if (S.coins > hs.coins) hs.coins = S.coins;
+  if (S.served > hs.served) hs.served = S.served;
+  if (S.maxStreak > hs.streak) hs.streak = S.maxStreak;
+  save.coins += S.coins;
+  saveGame();
+  renderGameover();
+  showScreen('gameover');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════════════════════
+let rafId = null;
+function loopStart() {
+  S.lastFrame = performance.now();
+  cancelAnimationFrame(rafId);
+  const step = (now) => {
+    if (!S || !S.running) return;
+    const dt = Math.min(0.1, (now - S.lastFrame) / 1000);
+    S.lastFrame = now;
+    if (S.paused) { rafId = requestAnimationFrame(step); return; }
+
+    // Timers
+    if (S.mode === 'story' && S.timeLeft != null) {
+      S.timeLeft -= dt;
+      if (S.timeLeft <= 0) {
+        S.timeLeft = 0;
+        endDay(S.served >= S.dayConfig.goal);
+        return;
+      }
+    } else if (S.mode === 'endless') {
+      S.endlessElapsed += dt;
+      S.dayConfig.spawn = endlessSpawnRate();
+      S.dayConfig.maxQ = Math.min(6, 3 + Math.floor(S.endlessElapsed / 60));
+    }
+
+    // Customer patience (except if 'fire' bonus active)
+    const freezePatience = S.bonusType === 'fire' && performance.now() < S.bonusUntil;
+    if (!freezePatience) {
+      for (let i = S.customers.length - 1; i >= 0; i--) {
+        const c = S.customers[i];
+        const p = customerPatience(c);
+        if (p <= 0 && !c.leaving) {
+          c.leaving = true;
+          customerLeftAngry(c);
+        }
+      }
+    } else {
+      // Refill patience while frozen
+      S.customers.forEach(c => {
+        c.arrivedAt = performance.now() - (1 - 1) * c.maxPatience * 1000;
+      });
+    }
+
+    // Bonus expiry
+    if (S.bonusType && performance.now() >= S.bonusUntil) {
+      S.bonusType = null;
+    }
+
+    // Spawn rate
+    const since = (now - S.lastSpawn) / 1000;
+    if (since >= S.dayConfig.spawn) {
+      spawnCustomer();
+    }
+
+    // Steam gauge
+    if (S.steamHolding) {
+      S.steamGauge = Math.min(1.2, S.steamGauge + dt * 0.35);
+      const fill = document.getElementById('gauge-fill');
+      const ind = document.getElementById('gauge-indicator');
+      if (fill) fill.style.width = (S.steamGauge * 100) + '%';
+      if (ind)  ind.style.left   = (S.steamGauge * 100) + '%';
+      if (Math.random() < 0.3) SFX.steam();
+    }
+
+    // Update dynamic text
+    renderTopBar();
+    // Update patience colors on customers without full re-render
+    updatePatienceDOM();
+
+    rafId = requestAnimationFrame(step);
+  };
+  rafId = requestAnimationFrame(step);
+}
+
+function updatePatienceDOM() {
+  const q = document.getElementById('customer-queue');
+  if (!q) return;
+  S.customers.forEach(c => {
+    const el = q.querySelector(`[data-customer="${c.id}"] .hearts`);
+    if (!el) return;
+    const p = customerPatience(c);
+    const pColor = p > 0.7 ? 'var(--green)' : p > 0.4 ? 'var(--yellow)' : p > 0.2 ? 'var(--orange)' : 'var(--red)';
+    const lit = Math.ceil(p * 5);
+    [...el.children].forEach((h, i) => {
+      h.style.background = i < lit ? pColor : '#c8b4a0';
+    });
+  });
+  // Order chip patience dots
+  const ol = document.getElementById('orders-list');
+  if (ol) {
+    S.orders.forEach(o => {
+      const dot = ol.querySelector(`[data-order="${o.id}"] .order-patience`);
+      if (dot && o.customer) {
+        const p = customerPatience(o.customer);
+        dot.style.background = p > 0.7 ? 'var(--green)' : p > 0.4 ? 'var(--yellow)' : p > 0.2 ? 'var(--orange)' : 'var(--red)';
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════════
+function notif(text, color='') {
+  const area = document.getElementById('notif-area');
+  if (!area) return;
+  const n = document.createElement('div');
+  n.className = 'notif ' + color;
+  n.textContent = text;
+  area.appendChild(n);
+  setTimeout(() => n.remove(), 2000);
+}
+function coinPop(n) {
+  const gp = document.getElementById('screen-gameplay');
+  if (!gp) return;
+  const p = document.createElement('div');
+  p.className = 'coin-pop';
+  p.textContent = '+$' + n;
+  p.style.left = '50%';
+  p.style.top = '40%';
+  p.style.transform = 'translate(-50%, -50%)';
+  gp.appendChild(p);
+  setTimeout(() => p.remove(), 1200);
+}
+function shake(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESULTS SCREEN
+// ═══════════════════════════════════════════════════════════════
+function showResults(success, stars) {
+  const el = document.getElementById('screen-results');
+  const cfg = S.dayConfig;
+  const day = S.dayIdx + 1;
+  el.innerHTML = `
+    <div class="results-card">
+      <div class="results-title">${success ? 'DAY ' + day + ' DONE!' : 'TIME\'S UP!'}</div>
+      <div style="text-align:center; color:var(--wood-dark); font-size:12px; margin-bottom:6px;">
+        ${success ? 'You hit the goal! ☕' : `You served ${S.served}/${cfg.goal}.`}
+      </div>
+      <div class="results-stars">
+        <div class="results-star s1 ${stars >= 1 ? 'filled' : 'empty'}">${stars >= 1 ? '⭐' : '☆'}</div>
+        <div class="results-star s2 ${stars >= 2 ? 'filled' : 'empty'}">${stars >= 2 ? '⭐' : '☆'}</div>
+        <div class="results-star s3 ${stars >= 3 ? 'filled' : 'empty'}">${stars >= 3 ? '⭐' : '☆'}</div>
+      </div>
+      <div class="results-row"><span>Customers served</span><strong>${S.served}</strong></div>
+      <div class="results-row"><span>Angry leavers</span><strong>${S.angry}</strong></div>
+      <div class="results-row"><span>Perfect serves</span><strong>${S.perfectServes}</strong></div>
+      <div class="results-row"><span>Longest streak</span><strong>${S.maxStreak}×</strong></div>
+      <div class="results-row"><span>Coins earned</span><strong style="color:var(--yellow-dark);">$${S.coins}</strong></div>
+      ${stars >= 1 && day < 20 ? `<div style="margin-top:10px; text-align:center; font-size:11px; color:var(--green-dark);">DAY ${day + 1} UNLOCKED!</div>` : ''}
+      ${stars >= 1 && day === 10 ? `<div style="margin-top:4px; text-align:center; font-size:11px; color:var(--red-dark);">🔥 ENDLESS MODE UNLOCKED!</div>` : ''}
+    </div>
+    <div class="title-buttons" style="width:min(320px,90%);">
+      ${success ? `<button class="btn primary" data-action="goto-shop">🛒 TO SHOP</button>` : ''}
+      <button class="btn secondary" data-action="retry-day">↻ RETRY DAY</button>
+      <button class="btn cream sm" data-action="back-days">← DAY SELECT</button>
+    </div>
+  `;
+  showScreen('results');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SHOP SCREEN
+// ═══════════════════════════════════════════════════════════════
+function renderShop() {
+  const el = document.getElementById('screen-shop');
+  el.innerHTML = `
+    <div class="awning" style="padding: 18px 14px 12px;">
+      <div class="day-sel-header">
+        <button class="btn sm cream" data-action="shop-back">← BACK</button>
+        <div>SHOP</div>
+        <div class="coin-badge" style="min-width:auto; padding: 3px 10px;">
+          <div class="val" style="font-size:14px;">$${save.coins}</div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-y">
+      <div class="shop-section-title">EQUIPMENT</div>
+      ${Object.entries(UPGRADES).map(([k,u]) => shopItemHtml(k, u, 'upgrade')).join('')}
+      <div class="shop-section-title">DECORATIONS</div>
+      ${Object.entries(DECOS).map(([k,d]) => shopItemHtml(k, d, 'deco')).join('')}
+      <div style="height:20px;"></div>
+    </div>
+  `;
+}
+function shopItemHtml(id, item, kind) {
+  const owned = (kind === 'upgrade' ? save.upgrades : save.decos)[id];
+  const canAfford = save.coins >= item.cost;
+  const cls = owned ? 'owned' : !canAfford ? 'cant' : '';
+  return `
+    <div class="shop-item">
+      <div class="shop-icon-bg" style="background:${item.color || 'var(--blue-light)'}">${item.icon}</div>
+      <div class="shop-item-info">
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-desc">${item.desc}</div>
+      </div>
+      <button class="shop-buy-btn ${cls}" data-buy="${kind}-${id}" ${owned ? 'disabled' : ''}>
+        ${owned ? '✓ OWNED' : `<div class="shop-coin-dot"></div>${item.cost}`}
+      </button>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS SCREEN
+// ═══════════════════════════════════════════════════════════════
+function renderSettings() {
+  const el = document.getElementById('screen-settings');
+  el.innerHTML = `
+    <div class="awning" style="padding: 18px 14px 12px;">
+      <div class="day-sel-header">
+        <button class="btn sm cream" data-action="settings-back">← BACK</button>
+        <div>SETTINGS</div>
+        <div style="width:60px;"></div>
+      </div>
+    </div>
+    <div class="scroll-y" style="padding-top:4px;">
+      <div class="settings-row">
+        <div class="setting-lbl">🔊 Sound FX</div>
+        <div class="toggle ${save.soundOn ? 'on' : 'off'}" data-toggle="sound"><div class="knob"></div></div>
+      </div>
+      <div class="settings-row">
+        <div class="setting-lbl">🎵 Music</div>
+        <div class="toggle ${save.musicOn ? 'on' : 'off'}" data-toggle="music"><div class="knob"></div></div>
+      </div>
+      <div class="settings-row">
+        <div class="setting-lbl">🗑 Reset Progress</div>
+        <button class="btn danger sm" data-action="reset">RESET</button>
+      </div>
+      <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:6px;">
+        <div class="setting-lbl" style="text-align:center; font-size:12px;">HIGH SCORES (ENDLESS)</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; text-align:center;">
+          <div><div style="font-size:10px;color:var(--wood-dark);">COINS</div><div style="font-size:16px;color:var(--yellow-dark);">$${save.endless.coins}</div></div>
+          <div><div style="font-size:10px;color:var(--wood-dark);">SERVED</div><div style="font-size:16px;">${save.endless.served}</div></div>
+          <div><div style="font-size:10px;color:var(--wood-dark);">STREAK</div><div style="font-size:16px;">${save.endless.streak}×</div></div>
+        </div>
+      </div>
+      <div style="padding:20px; text-align:center; color:var(--wood-dark); font-size:10px;">
+        Brew Rush v1.0 · Flash Cartoon style
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAMEOVER SCREEN
+// ═══════════════════════════════════════════════════════════════
+function renderGameover() {
+  const el = document.getElementById('screen-gameover');
+  el.innerHTML = `
+    <div class="gameover-title">SHIFT OVER!</div>
+    <div class="results-card" style="max-width:320px;">
+      <div style="text-align:center; color:var(--red-dark); font-size:14px; margin-bottom:10px;">5 customers left angry.</div>
+      <div class="results-row"><span>Served</span><strong>${S.served}</strong></div>
+      <div class="results-row"><span>Coins</span><strong style="color:var(--yellow-dark);">$${S.coins}</strong></div>
+      <div class="results-row"><span>Longest streak</span><strong>${S.maxStreak}×</strong></div>
+      <div class="results-row"><span>High score streak</span><strong>${save.endless.streak}×</strong></div>
+    </div>
+    <div class="title-buttons" style="width:min(320px,90%);">
+      <button class="btn primary" data-action="retry-endless">↻ TRY AGAIN</button>
+      <button class="btn cream" data-action="back-title">← MAIN MENU</button>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EVENT HANDLING — delegated clicks
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-action]');
+  if (t) {
+    e.stopPropagation();
+    const action = t.dataset.action;
+    handleAction(action);
+    return;
+  }
+  const day = e.target.closest('[data-day]');
+  if (day && !day.classList.contains('locked')) {
+    const n = parseInt(day.dataset.day, 10);
+    if (n <= save.highestDay) {
+      renderPreDay(n - 1);
+      showScreen('pre-day');
+      return;
+    }
+  }
+  const order = e.target.closest('[data-order]');
+  if (order && S) {
+    onOrderSelect(parseInt(order.dataset.order, 10));
+    return;
+  }
+  const customer = e.target.closest('[data-customer]');
+  if (customer && S) {
+    onCustomerTap(parseInt(customer.dataset.customer, 10));
+    return;
+  }
+  const tab = e.target.closest('[data-tab]');
+  if (tab && S) {
+    onTabTap(tab.dataset.tab);
+    return;
+  }
+  const brew = e.target.closest('[data-brew]');
+  if (brew && S) { onBrewTap(brew.dataset.brew); return; }
+  const milk = e.target.closest('[data-milk]');
+  if (milk && S) { onMilkTap(milk.dataset.milk); return; }
+  const flavor = e.target.closest('[data-flavor]');
+  if (flavor && S) { onFlavorTap(flavor.dataset.flavor); return; }
+  const topping = e.target.closest('[data-topping]');
+  if (topping && S) { onToppingTap(topping.dataset.topping); return; }
+  const serveBtn = e.target.closest('#serve-btn');
+  if (serveBtn && S) { onServeTap(); return; }
+
+  const buy = e.target.closest('[data-buy]');
+  if (buy) {
+    const [kind, ...rest] = buy.dataset.buy.split('-');
+    const id = rest.join('-');
+    buyItem(kind, id);
+    return;
+  }
+  const toggle = e.target.closest('[data-toggle]');
+  if (toggle) {
+    const k = toggle.dataset.toggle;
+    if (k === 'sound') save.soundOn = !save.soundOn;
+    if (k === 'music') save.musicOn = !save.musicOn;
+    saveGame();
+    renderSettings();
+    return;
+  }
+});
+
+// Press & hold handling for steam button
+function attachHoldHandlers() {
+  const go = document.getElementById('game');
+  const start = (e) => {
+    const btn = e.target.closest('#hold-btn');
+    if (!btn) return;
+    e.preventDefault();
+    onSteamHoldStart();
+  };
+  const end = () => {
+    if (S && S.steamHolding) onSteamHoldEnd();
+  };
+  go.addEventListener('touchstart', start, { passive: false });
+  go.addEventListener('mousedown', start);
+  window.addEventListener('touchend', end);
+  window.addEventListener('touchcancel', end);
+  window.addEventListener('mouseup', end);
+  window.addEventListener('mouseleave', end);
+}
+
+function handleAction(a) {
+  if (a === 'play-story') { renderDaySelect(); showScreen('day-select'); return; }
+  if (a === 'play-endless') { if (save.highestDay > 10) startEndless(); return; }
+  if (a === 'shop') { renderShop(); showScreen('shop'); return; }
+  if (a === 'settings') { renderSettings(); showScreen('settings'); return; }
+  if (a === 'back-title') { renderTitle(); showScreen('title'); return; }
+  if (a === 'back-days') { renderDaySelect(); showScreen('day-select'); return; }
+  if (a === 'shop-back') {
+    // Go back to results if just finished a day, otherwise title
+    if (S && !S.running) { showResults(true, save.stars[S.dayIdx+1] || 0); }
+    else { renderTitle(); showScreen('title'); }
+    return;
+  }
+  if (a === 'settings-back') { renderTitle(); showScreen('title'); return; }
+  if (a === 'start-day') {
+    // Get day idx from pre-day (we stored it in DOM)
+    const dm = document.querySelector('.day-marquee');
+    const dayIdx = parseInt(dm.textContent.replace('DAY ', ''), 10) - 1;
+    startDay(dayIdx);
+    return;
+  }
+  if (a === 'goto-shop') { renderShop(); showScreen('shop'); return; }
+  if (a === 'retry-day') { startDay(S.dayIdx); return; }
+  if (a === 'retry-endless') { startEndless(); return; }
+  if (a === 'pause') { togglePause(); return; }
+  if (a === 'reset') {
+    if (confirm('Reset all progress? This cannot be undone.')) {
+      resetSave();
+      renderTitle(); showScreen('title');
+    }
+    return;
+  }
+}
+
+function buyItem(kind, id) {
+  const table = kind === 'upgrade' ? UPGRADES : DECOS;
+  const item = table[id];
+  if (!item) return;
+  const ownedMap = kind === 'upgrade' ? save.upgrades : save.decos;
+  if (ownedMap[id]) return;
+  if (save.coins < item.cost) { SFX.wrong(); return; }
+  save.coins -= item.cost;
+  ownedMap[id] = true;
+  SFX.coin();
+  saveGame();
+  renderShop();
+}
+
+function togglePause() {
+  if (!S) return;
+  S.paused = !S.paused;
+  notif(S.paused ? 'PAUSED' : 'RESUMED', S.paused ? 'red' : 'green');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+function init() {
+  renderTitle();
+  showScreen('title');
+  attachHoldHandlers();
+  // Unlock audio on first user gesture
+  const unlock = () => {
+    const ctx = getAudio();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    window.removeEventListener('touchstart', unlock);
+    window.removeEventListener('click', unlock);
+  };
+  window.addEventListener('touchstart', unlock, { once: true });
+  window.addEventListener('click', unlock, { once: true });
+}
+init();
+
+</script>
+</body>
+</html>
