@@ -278,9 +278,21 @@ img { display: block; }
   width: 34px; height: 34px; border-radius: 50%;
   background: var(--cream); border: var(--out-thick);
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; cursor: pointer; flex-shrink: 0;
+  gap: 3px; cursor: pointer; flex-shrink: 0;
   box-shadow: 0 3px 0 var(--ink);
 }
+.pause-btn span {
+  display: block; width: 4px; height: 14px;
+  background: var(--ink); border-radius: 1px;
+}
+.pause-btn.paused { gap: 0; }
+.pause-btn.paused span:first-child {
+  width: 0; height: 0; background: transparent;
+  border-left: 10px solid var(--ink);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+.pause-btn.paused span:last-child { display: none; }
 .pause-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 
 /* Orders rail */
@@ -1183,46 +1195,46 @@ const CTYPES = {
 };
 
 const DAYS = [
-  { goal:5,  time:120, spawn:16, maxQ:3, slots:3, types:['reg','reg2'], drinks:['espresso','drip'],
-    flavor:'Time to open! Start simple. Tap a customer, then tap the right ingredients.', stars:[200,350,500] },
-  { goal:7,  time:150, spawn:14, maxQ:3, slots:3, types:['reg','reg2','stu'], drinks:['espresso','drip'],
-    flavor:'Word is getting out — students are stopping by.', stars:[280,450,650] },
-  { goal:8,  time:150, spawn:13, maxQ:4, slots:3, types:['reg','reg2','reg3','stu'], drinks:['espresso','drip'],
-    flavor:'Your regulars are back! (Almond milk unlocks today.)', stars:[350,550,750] },
-  { goal:9,  time:160, spawn:12, maxQ:4, slots:3, types:['reg','reg2','reg3','stu','biz'], drinks:['espresso','drip','latte','oat_latte'],
-    flavor:'Lattes are on the menu! (Mocha syrup unlocks today.)', stars:[400,650,900] },
-  { goal:10, time:170, spawn:11, maxQ:4, slots:3, types:['reg','reg2','stu','biz'], drinks:['espresso','drip','latte','oat_latte','cappuccino','matcha_latte'],
-    flavor:'Matcha lovers incoming! (Matcha base unlocks.)', stars:[500,800,1100] },
+  { goal:5,  time:120, spawn:13, maxQ:3, slots:3, types:['reg','reg2'], drinks:['espresso','drip'],
+    flavor:'Time to open! Start simple. Tap a customer, then tap the right ingredients.', stars:[120,250,400] },
+  { goal:7,  time:150, spawn:11, maxQ:3, slots:3, types:['reg','reg2','stu'], drinks:['espresso','drip'],
+    flavor:'Word is getting out — students are stopping by.', stars:[180,340,550] },
+  { goal:8,  time:150, spawn:10, maxQ:4, slots:3, types:['reg','reg2','reg3','stu'], drinks:['espresso','drip'],
+    flavor:'Your regulars are back! (Almond milk unlocks today.)', stars:[220,420,650] },
+  { goal:9,  time:160, spawn:11, maxQ:4, slots:3, types:['reg','reg2','reg3','stu','biz'], drinks:['espresso','drip','latte','oat_latte'],
+    flavor:'Lattes are on the menu! (Mocha syrup unlocks today.)', stars:[250,500,750] },
+  { goal:10, time:170, spawn:10, maxQ:4, slots:3, types:['reg','reg2','stu','biz'], drinks:['espresso','drip','latte','oat_latte','cappuccino','matcha_latte'],
+    flavor:'Matcha lovers incoming! (Matcha base unlocks.)', stars:[300,600,900] },
   { goal:10, time:170, spawn:10, maxQ:4, slots:3, types:['reg','reg2','stu','biz','reg3'], drinks:['espresso','drip','latte','oat_latte','cappuccino','matcha_latte'],
-    flavor:'Keep the pace up!', stars:[550,850,1150] },
+    flavor:'Keep the pace up!', stars:[350,650,1000] },
   { goal:11, time:180, spawn:10, maxQ:5, slots:3, types:['reg','reg2','stu','biz','snob'], drinks:['espresso','drip','latte','oat_latte','cappuccino','matcha_latte'],
-    flavor:'A coffee snob walked in… perfect their drink or no tip!', stars:[600,900,1250] },
+    flavor:'A coffee snob walked in… perfect their drink or no tip!', stars:[400,700,1100] },
   { goal:12, time:180, spawn:9,  maxQ:5, slots:3, types:['reg','reg2','stu','biz','snob'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac'],
-    flavor:'Fancy drinks are popular! (Hazelnut syrup unlocks today.)', stars:[700,1050,1400] },
+    flavor:'Fancy drinks are popular! (Hazelnut syrup unlocks today.)', stars:[450,800,1200] },
   { goal:12, time:190, spawn:9,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac'],
-    flavor:'Rush hour on a Friday.', stars:[800,1200,1550] },
+    flavor:'Rush hour on a Friday.', stars:[500,900,1350] },
   { goal:13, time:190, spawn:8,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte'],
-    flavor:'A VIP walked in! (Chai unlocks today. Endless Mode unlocks after this day!)', stars:[900,1350,1750] },
+    flavor:'A VIP walked in! (Chai unlocks today. Endless Mode unlocks after this day!)', stars:[550,1000,1500] },
   { goal:13, time:200, spawn:8,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte'],
-    flavor:'You unlocked Endless Mode! Keep going for stars.', stars:[1000,1450,1900] },
+    flavor:'You unlocked Endless Mode! Keep going for stars.', stars:[600,1100,1650] },
   { goal:14, time:200, spawn:7,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte'],
-    flavor:'Busy lunch crowd.', stars:[1100,1600,2050] },
+    flavor:'Busy lunch crowd.', stars:[650,1200,1800] },
   { goal:14, time:210, spawn:7,  maxQ:5, slots:4, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','oat_latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'New signature drinks!', stars:[1200,1750,2250] },
+    flavor:'New signature drinks!', stars:[750,1300,1950] },
   { goal:15, time:210, spawn:6,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'Peak hours. Everyone wants coffee!', stars:[1400,1950,2550] },
+    flavor:'Peak hours. Everyone wants coffee!', stars:[850,1500,2200] },
   { goal:15, time:210, spawn:6,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'Halfway through the season!', stars:[1500,2050,2700] },
+    flavor:'Halfway through the season!', stars:[900,1550,2300] },
   { goal:16, time:220, spawn:5,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'A food blogger is reviewing you today!', stars:[1700,2250,3000] },
+    flavor:'A food blogger is reviewing you today!', stars:[1000,1700,2550] },
   { goal:16, time:220, spawn:5,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'Social media is buzzing about you.', stars:[1900,2450,3250] },
+    flavor:'Social media is buzzing about you.', stars:[1150,1850,2800] },
   { goal:17, time:230, spawn:4,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'Championship day is close.', stars:[2100,2700,3600] },
+    flavor:'Championship day is close.', stars:[1300,2050,3100] },
   { goal:18, time:230, spawn:4,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'The big day is tomorrow.', stars:[2300,2950,3850] },
+    flavor:'The big day is tomorrow.', stars:[1400,2250,3300] },
   { goal:20, time:240, spawn:3,  maxQ:5, slots:5, types:['reg','reg2','stu','biz','snob','vip','reg3'], drinks:['espresso','drip','latte','vanilla_latte','caramel_mac','mocha','chai_latte','hazel_latte','almond_mocha'],
-    flavor:'CHAMPIONSHIP DAY! This is the big one!', stars:[2500,3200,4200] },
+    flavor:'CHAMPIONSHIP DAY! This is the big one!', stars:[1500,2400,3600] },
 ];
 
 const UPGRADES = {
@@ -1477,7 +1489,7 @@ function renderGameplayShell() {
         <div id="timer-ring">
           <div class="inner" id="timer-inner">2:00</div>
         </div>
-        <div class="pause-btn" data-action="pause">II</div>
+        <div class="pause-btn" data-action="pause"><span></span><span></span></div>
       </div>
     </div>
     <div id="orders-rail">
@@ -2456,7 +2468,8 @@ function showResults(success, stars) {
       ${stars >= 1 && day === 10 ? `<div style="margin-top:4px; text-align:center; font-size:11px; color:var(--red-dark);">🔥 ENDLESS MODE UNLOCKED!</div>` : ''}
     </div>
     <div class="title-buttons" style="width:min(320px,90%);">
-      ${success ? `<button class="btn primary" data-action="goto-shop">🛒 TO SHOP</button>` : ''}
+      ${success && day < 20 ? `<button class="btn primary" data-action="next-day">▶ NEXT DAY</button>` : ''}
+      ${success ? `<button class="btn secondary" data-action="goto-shop">🛒 TO SHOP</button>` : ''}
       <button class="btn secondary" data-action="retry-day">↻ RETRY DAY</button>
       <button class="btn cream sm" data-action="back-days">← DAY SELECT</button>
     </div>
@@ -2675,6 +2688,7 @@ function handleAction(a) {
   }
   if (a === 'goto-shop') { renderShop(); showScreen('shop'); return; }
   if (a === 'retry-day') { startDay(S.dayIdx); return; }
+  if (a === 'next-day') { startDay(S.dayIdx + 1); return; }
   if (a === 'retry-endless') { startEndless(); return; }
   if (a === 'pause') { togglePause(); return; }
   if (a === 'reset') {
@@ -2703,6 +2717,8 @@ function buyItem(kind, id) {
 function togglePause() {
   if (!S) return;
   S.paused = !S.paused;
+  const btn = document.querySelector('.pause-btn');
+  if (btn) btn.classList.toggle('paused', S.paused);
   notif(S.paused ? 'PAUSED' : 'RESUMED', S.paused ? 'red' : 'green');
 }
 
